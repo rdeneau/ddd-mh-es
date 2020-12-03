@@ -1,13 +1,14 @@
 using System.Collections.Generic;
+using System.Linq;
 using CineMarco.EventSourcing.Csharp9.Common;
 
 namespace CineMarco.EventSourcing.Csharp9.Domain
 {
     public class ScreeningState
     {
-        public ScreeningId ScreeningId { get; private set; } = ScreeningId.Undefined;
+        private ScreeningId ScreeningId { get; set; } = ScreeningId.Undefined;
 
-        public NumberOfSeats SeatsLeft { get; private set; } = NumberOfSeats.Zero;
+        public List<Seat> Seats { get; } = new();
 
         public ScreeningState(IEnumerable<IEvent> history)
         {
@@ -15,18 +16,24 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
                 Apply(@event); // Dynamic dispatch
         }
 
-        // For other event types, in order to have a fallback "Apply" method for the dynamic dispatch
+        // Fallback "Apply" method, compulsory to secure the previous dynamic dispatch
         private void Apply(IEvent _) { }
 
         private void Apply(ScreeningInitialized @event)
         {
-            (ScreeningId, SeatsLeft) = @event;
+            var (screeningId, seats) = @event;
+            Seats.AddRange(seats);
+            ScreeningId = screeningId;
         }
 
         private void Apply(SeatsReserved @event)
         {
             // 💡 No need to check the `ScreeningId`. The event has happened. It's the source of truth.
-            SeatsLeft -= @event.Seats;
+
+            for (var i = 0; i < Seats.Count; i++)
+            {
+                Seats[i] = @event.Seats.First(x => x.Id == Seats[i].Id);
+            }
         }
     }
 }
