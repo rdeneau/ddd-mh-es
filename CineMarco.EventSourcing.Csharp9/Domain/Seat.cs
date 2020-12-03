@@ -24,6 +24,11 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
             return this;
         }
 
-        public override string ToString() => $"Seat {{ Number = {Number.Value}, Id = {Id} }}";
+        public override string ToString() => $"Seat #{Number.Value}{ReservationInfo}, Id = {Id}";
+
+        private string ReservationInfo =>
+            ReservationDate.HasValue
+                ? $", Reserved @ {ReservationDate.Value}"
+                : "";
     }
 }

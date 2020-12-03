@@ -32,7 +32,9 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
             for (var i = 0; i < Seats.Count; i++)
             {
-                Seats[i] = @event.Seats.First(x => x.Id == Seats[i].Id);
+                var seat = @event.Seats.FirstOrDefault(x => x.Id == Seats[i].Id);
+                if (seat != null)
+                    Seats[i] = seat;
             }
         }
     }

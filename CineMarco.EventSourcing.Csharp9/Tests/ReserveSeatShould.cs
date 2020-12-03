@@ -20,6 +20,32 @@ namespace CineMarco.EventSourcing.Csharp9.Tests
             ThenExpect(new SeatsReserved(screening.Id, screening.SeatsWithNumber(1)));
         }
 
+        [Fact]
+        public void Reserve_second_seat_of_the_screening()
+        {
+            var screening = ScreeningWith(numberOfSeats: 4);
+
+            Given(new ScreeningInitialized(screening.Id, screening.Seats),
+                  new SeatsReserved(screening.Id, screening.SeatsWithNumber(1).WithEach(x => x.Reserve())));
+
+            When(new ReserveSeats(screening.Id, new NumberOfSeats(1)));
+
+            ThenExpect(new SeatsReserved(screening.Id, screening.SeatsWithNumber(2)));
+        }
+
+        [Fact]
+        public void Reserve_two_seats_twice()
+        {
+            var screening = ScreeningWith(numberOfSeats: 4);
+
+            Given(new ScreeningInitialized(screening.Id, screening.Seats),
+                  new SeatsReserved(screening.Id, screening.SeatsWithNumber(1, 2).WithEach(x => x.Reserve())));
+
+            When(new ReserveSeats(screening.Id, new NumberOfSeats(2)));
+
+            ThenExpect(new SeatsReserved(screening.Id, screening.SeatsWithNumber(3, 4)));
+        }
+
         // [Fact]
         // public void Reserve_Too_Much_Seats_Should_Fail()
         // {

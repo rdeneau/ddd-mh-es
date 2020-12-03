@@ -10,7 +10,7 @@ namespace CineMarco.EventSourcing.Csharp9.Common
     /// </summary>
     public sealed class ValueList<T> : IReadOnlyList<T>, IEquatable<ValueList<T>>
     {
-        private readonly IReadOnlyList<T> _items;
+        private readonly List<T> _items;
 
         public ValueList(IEnumerable<T> items)
         {
@@ -47,6 +47,12 @@ namespace CineMarco.EventSourcing.Csharp9.Common
         public static bool operator !=(ValueList<T>? left, ValueList<T>? right) => !Equals(left, right);
 
         public override string ToString() => $"[{string.Join(", ", _items.Select(x => $"{x}"))}]";
+
+        public ValueList<T> WithEach(Action<T> changeItem)
+        {
+            _items.ForEach(changeItem);
+            return this;
+        }
     }
 
     public static class ValueListExtensions
