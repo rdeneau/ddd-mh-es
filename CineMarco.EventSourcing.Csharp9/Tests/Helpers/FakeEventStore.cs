@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,7 +12,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Helpers
             _events.AddRange(events);
         }
 
-        public IEnumerable<Event> Search(Func<Event, bool> predicate) =>
-            _events.Where(predicate);
+        public IEnumerable<Event> Search(string by) =>
+            _events.Where(x => $"{x}".Contains(by)); // Use Event record ToString() generated method
     }
 }

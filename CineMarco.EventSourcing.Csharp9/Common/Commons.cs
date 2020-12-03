@@ -17,7 +17,7 @@ namespace CineMarco.EventSourcing.Csharp9
 
     public interface IEventStore
     {
-        IEnumerable<Event> Search(Func<Event, bool> predicate);
+        IEnumerable<Event> Search(string by);
     }
 }
 
