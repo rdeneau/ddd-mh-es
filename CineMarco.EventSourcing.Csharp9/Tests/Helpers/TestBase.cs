@@ -1,4 +1,5 @@
 using CineMarco.EventSourcing.Csharp9.Application;
+using CineMarco.EventSourcing.Csharp9.Common;
 using Shouldly;
 
 namespace CineMarco.EventSourcing.Csharp9.Tests.Helpers
@@ -9,7 +10,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Helpers
 
         readonly FakeEventBus _eventBus = new();
 
-        public void Given(params Event[] events) {
+        public void Given(params IEvent[] events) {
             _eventStore.Initialize(events);
         }
 
@@ -18,7 +19,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Helpers
             handler.Handle(command);
         }
 
-        public void ThenExpect(params Event[] events) {
+        public void ThenExpect(params IEvent[] events) {
             _eventBus.PublishedEvents.ShouldBe(events);
         }
     }

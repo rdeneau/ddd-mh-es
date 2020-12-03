@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CineMarco.EventSourcing.Csharp9.Common;
 
 namespace CineMarco.EventSourcing.Csharp9.Domain
 {
@@ -8,14 +9,14 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
         public NumberOfSeats SeatsLeft { get; private set; } = NumberOfSeats.Zero;
 
-        public ScreeningState(IEnumerable<Event> history)
+        public ScreeningState(IEnumerable<IEvent> history)
         {
             foreach (dynamic @event in history)
                 Apply(@event); // Dynamic dispatch
         }
 
         // For other event types, in order to have a fallback "Apply" method for the dynamic dispatch
-        private void Apply(Event _) { }
+        private void Apply(IEvent _) { }
 
         private void Apply(ScreeningInitialized @event)
         {

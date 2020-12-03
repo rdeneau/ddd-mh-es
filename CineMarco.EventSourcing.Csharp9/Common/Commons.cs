@@ -1,30 +1,18 @@
-using System;
 using System.Collections.Generic;
 
-namespace CineMarco.EventSourcing.Csharp9
+namespace CineMarco.EventSourcing.Csharp9.Common
 {
-    public record Event(DateTimeOffset At)
-    {
-        public Event() : this(DateTimeOffset.UtcNow) {}
-    }
-
     public interface ICommand { } // Marker interface
+
+    public interface IEvent { } // Marker interface
 
     public interface IEventBus
     {
-        void Publish(Event @event);
+        void Publish(IEvent @event);
     }
 
     public interface IEventStore
     {
-        IEnumerable<Event> Search(string by);
-    }
-}
-
-// Hack for C# 9
-namespace System.Runtime.CompilerServices
-{
-    public class IsExternalInit
-    {
+        IEnumerable<IEvent> Search(string by);
     }
 }

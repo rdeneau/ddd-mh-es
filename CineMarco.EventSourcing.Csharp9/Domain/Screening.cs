@@ -1,3 +1,5 @@
+using CineMarco.EventSourcing.Csharp9.Common;
+
 namespace CineMarco.EventSourcing.Csharp9.Domain
 {
     public record Screening(ScreeningState State, IEventBus EventBus)
