@@ -1,20 +1,23 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using CineMarco.EventSourcing.Csharp9.Application;
 using CineMarco.EventSourcing.Csharp9.Domain;
 using Shouldly;
-using Xunit.Abstractions;
 
 namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
 {
     public class TestBase
     {
-        private readonly FakeEventStore    _eventStore = new();
-        private readonly FakeEventBus      _eventBus   = new();
-        private readonly ITestOutputHelper _outputHelper;
+        private readonly FakeEventBus   _eventBus   = new();
+        private readonly FakeEventStore _eventStore = new();
 
-        protected TestBase(ITestOutputHelper outputHelper)
-        {
-            _outputHelper = outputHelper;
-        }
+        private readonly DateTimeOffset _now = DateTimeOffset.UtcNow;
+
+        protected bool IgnoreEventTimestamp { get; set; }
+
+        private IEnumerable<IDomainEvent> PublishedEvents => _eventBus.Events;
 
         protected void Given(params IDomainEvent[] events)
         {
@@ -25,20 +28,24 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
         {
             var handler = new CommandHandler(_eventStore, _eventBus);
             handler.Handle(command);
+
+            Thread.Sleep(10);
         }
 
-        protected void ThenExpect(params IDomainEvent[] events)
+        protected void ThenExpect(params IDomainEvent[] expectedEvents)
         {
-            // Print debug info to understand random test failure
-            if (events.Length == _eventBus.PublishedEvents.Count)
-            {
-                for (var i = 0; i < events.Length; i++)
-                {
-                    _outputHelper.WriteLine($"Events #{i} are equal: {events[i] == _eventBus.PublishedEvents[i]}");
-                }
-            }
-
-            _eventBus.PublishedEvents.ShouldBe(events);
+            Sanitize(PublishedEvents)
+                .ShouldBe(Sanitize(expectedEvents));
         }
+
+        private IEnumerable<IDomainEvent> Sanitize(IEnumerable<IDomainEvent> events) =>
+            IgnoreEventTimestamp
+                ? events.Select(Sanitize)
+                : events;
+
+        private IDomainEvent Sanitize(IDomainEvent @event) =>
+            @event is AuditedEvent auditedEvent
+                ? auditedEvent with { At = _now }
+                : @event;
     }
 }
