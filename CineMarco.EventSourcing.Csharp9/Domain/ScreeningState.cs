@@ -1,10 +1,13 @@
+using System;
 using System.Collections.Generic;
 
 namespace CineMarco.EventSourcing.Csharp9.Domain
 {
     public class ScreeningState
     {
-        public ScreeningId Id { get; set; } = ScreeningId.Undefined;
+        public ScreeningId Id { get; private set; } = ScreeningId.Undefined;
+
+        public DateTimeOffset Date { get; private set; }
 
         private Dictionary<SeatNumber, Seat> SeatMap { get; } = new();
 
@@ -21,15 +24,19 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
         private void Apply(ScreeningIsInitialized @event)
         {
-            Id = @event.ScreeningId;
+            (Id, Date, _) = @event;
             foreach (var seatNumber in @event.Seats)
+            {
                 SeatMap.Add(seatNumber, seatNumber.ToSeat());
+            }
         }
 
         private void Apply(SeatsAreReserved @event)
         {
             foreach (var seat in @event.Seats)
+            {
                 SeatMap[seat] = SeatMap[seat].Reserve(@event.At);
+            }
         }
     }
 }

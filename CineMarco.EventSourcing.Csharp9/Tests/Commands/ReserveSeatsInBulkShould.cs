@@ -13,7 +13,8 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
         [Fact]
         public void Reserve_first_seat()
         {
-            var screening = ScreeningData.WithSeats("A", "B");
+            var screening = BuildScreening.WithSeats("A", "B")
+                                          .PlannedTomorrow();
 
             Given(screening.IsInitialized());
 
@@ -25,7 +26,8 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
         [Fact]
         public void Reserve_second_seat()
         {
-            var screening = ScreeningData.WithSeats("A", "B");
+            var screening = BuildScreening.WithSeats("A", "B")
+                                          .PlannedTomorrow();
 
             Given(screening.IsInitialized(),
                   screening.HasSeatsReserved("A"));
@@ -38,7 +40,8 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
         [Fact]
         public void Reserve_two_seats_given_two_seats_are_already_reserved()
         {
-            var screening = ScreeningData.WithSeats("A", "B", "C", "D");
+            var screening = BuildScreening.WithSeats("A", "B", "C", "D")
+                                          .PlannedTomorrow();
 
             Given(screening.IsInitialized(),
                   screening.HasSeatsReserved("A", "C"));
@@ -51,7 +54,8 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
         [Fact]
         public void Fail_to_reserve_a_seat_not_available()
         {
-            var screening = ScreeningData.WithSeats("A");
+            var screening = BuildScreening.WithSeats("A")
+                                          .PlannedTomorrow();
 
             Given(screening.IsInitialized(),
                   screening.HasSeatsReserved("A"));
@@ -64,7 +68,8 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
         [Fact]
         public void Fail_to_reserve_too_much_seat_for_the_screening()
         {
-            var screening = ScreeningData.WithSeats("A");
+            var screening = BuildScreening.WithSeats("A")
+                                          .PlannedTomorrow();
 
             Given(screening.IsInitialized());
 

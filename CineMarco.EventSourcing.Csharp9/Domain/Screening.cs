@@ -14,6 +14,9 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
         private IDomainEvent ReserveSeatsEvent(IReadOnlyList<SeatNumber> seats)
         {
+            if (IsTooClosedToScreeningTime())
+                return new SeatsReservationFailed(State.Id, seats, ReservationFailure.TooClosedToScreeningTime);
+
             var seatsToReserved = AvailableSeats().Intersect(seats).ToReadOnlyList();
             if (seatsToReserved.Count == seats.Count)
                 return new SeatsAreReserved(State.Id, seatsToReserved);
@@ -24,6 +27,9 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
             else
                 return new SeatsReservationFailed(State.Id, seats);
         }
+
+        private bool IsTooClosedToScreeningTime() =>
+            ClockUtc.Now > State.Date.AddMinutes(-15);
 
         public void ReserveSeatsInBulk(NumberOfSeats count)
         {
