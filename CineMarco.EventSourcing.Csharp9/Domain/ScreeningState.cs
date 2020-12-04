@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 
 namespace CineMarco.EventSourcing.Csharp9.Domain
 {
@@ -7,34 +6,28 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
     {
         private ScreeningId ScreeningId { get; set; } = ScreeningId.Undefined;
 
-        public List<Seat> Seats { get; } = new();
+        public Dictionary<SeatNumber, Seat> Seats { get; } = new();
 
         public ScreeningState(IEnumerable<IDomainEvent> history)
         {
             foreach (dynamic @event in history)
-                Apply(@event); // Dynamic dispatch
+                Apply(@event); // ⚠ Dynamic dispatch
         }
 
         // Fallback "Apply" method, compulsory to secure the previous dynamic dispatch
         private void Apply(IDomainEvent _) { }
 
-        private void Apply(ScreeningInitialized @event)
+        private void Apply(ScreeningIsInitialized @event)
         {
-            var (screeningId, seats) = @event;
-            Seats.AddRange(seats);
-            ScreeningId = screeningId;
+            ScreeningId = @event.ScreeningId;
+            foreach (var seatNumber in @event.Seats)
+                Seats.Add(seatNumber, seatNumber.ToSeat());
         }
 
-        private void Apply(SeatsReserved @event)
+        private void Apply(SeatsAreReserved @event)
         {
-            // 💡 No need to check the `ScreeningId`. The event has happened. It's the source of truth.
-
-            for (var i = 0; i < Seats.Count; i++)
-            {
-                var seat = @event.Seats.FirstOrDefault(x => x.Id == Seats[i].Id);
-                if (seat != null)
-                    Seats[i] = seat;
-            }
+            foreach (var seat in @event.Seats)
+                Seats[seat] = Seats[seat].Reserve(@event.At);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace CineMarco.EventSourcing.Csharp9.Application
         public void Handle(ICommand cmd)
         {
             switch (cmd) {
-                case ReserveSeats command:
+                case ReserveSeatsInBulk command:
                     var screeningHistory = EventStore.Search(by: $"ScreeningId = {command.ScreeningId}");
 
                     // 💡 SRP: state reconstitution in its own class (with the apply methods), separated from behaviors (the real aggregate class that never updates its state, just publishes events)

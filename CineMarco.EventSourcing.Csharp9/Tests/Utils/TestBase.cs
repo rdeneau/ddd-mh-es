@@ -2,7 +2,7 @@ using CineMarco.EventSourcing.Csharp9.Application;
 using CineMarco.EventSourcing.Csharp9.Domain;
 using Shouldly;
 
-namespace CineMarco.EventSourcing.Csharp9.Tests.Helpers
+namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
 {
     public class TestBase
     {

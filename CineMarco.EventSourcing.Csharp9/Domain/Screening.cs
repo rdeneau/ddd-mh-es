@@ -9,17 +9,21 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
     {
         public void ReserveSeats(ScreeningId screeningId, NumberOfSeats count)
         {
+            var numberOfSeats = count.Value;
+
             var seatsToReserved = AvailableSeats()
-                                  .Take(count.Value)
+                                  .Take(numberOfSeats)
                                   .ToList();
 
-            if (seatsToReserved.Count < count.Value)
-                EventBus.Publish(new SeatsNotReserved(screeningId, count));
+            if (seatsToReserved.Count < numberOfSeats)
+                EventBus.Publish(new SeatsBulkReservationFailed(screeningId, numberOfSeats));
             else
-                EventBus.Publish(new SeatsReserved(screeningId, seatsToReserved.Select(x => x.Reserve()).ToValueList()));
+                EventBus.Publish(new SeatsAreReserved(screeningId, seatsToReserved.ToReadOnlyList()));
         }
 
-        private IEnumerable<Seat> AvailableSeats() =>
-            State.Seats.Where(x => !x.IsReserved);
+        private IEnumerable<SeatNumber> AvailableSeats() =>
+            State.Seats.Values
+                 .Where(x => !x.IsReserved)
+                 .Select(x => x.Number);
     }
 }

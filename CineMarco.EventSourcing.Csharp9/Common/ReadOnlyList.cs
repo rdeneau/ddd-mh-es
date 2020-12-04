@@ -8,14 +8,12 @@ namespace CineMarco.EventSourcing.Csharp9.Common
     /// <summary>
     /// Read only list comparable by value
     /// </summary>
-    public sealed class ValueList<T> : IReadOnlyList<T>, IEquatable<ValueList<T>>
+    public sealed class ReadOnlyList<T> : IReadOnlyList<T>, IEquatable<ReadOnlyList<T>>
     {
-        private readonly List<T> _items;
+        private readonly List<T> _items = new();
 
-        public ValueList(IEnumerable<T> items)
-        {
-            _items = items.ToList();
-        }
+        public ReadOnlyList() {}
+        public ReadOnlyList(IEnumerable<T> items) => _items.AddRange(items);
 
         public int Count => _items.Count;
 
@@ -25,7 +23,7 @@ namespace CineMarco.EventSourcing.Csharp9.Common
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _items).GetEnumerator();
 
-        public bool Equals(ValueList<T>? other)
+        public bool Equals(ReadOnlyList<T>? other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -37,18 +35,18 @@ namespace CineMarco.EventSourcing.Csharp9.Common
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((ValueList<T>) obj);
+            return Equals((ReadOnlyList<T>) obj);
         }
 
         public override int GetHashCode() => _items.GetHashCode();
 
-        public static bool operator ==(ValueList<T>? left, ValueList<T>? right) => Equals(left, right);
+        public static bool operator ==(ReadOnlyList<T>? left, ReadOnlyList<T>? right) => Equals(left, right);
 
-        public static bool operator !=(ValueList<T>? left, ValueList<T>? right) => !Equals(left, right);
+        public static bool operator !=(ReadOnlyList<T>? left, ReadOnlyList<T>? right) => !Equals(left, right);
 
         public override string ToString() => $"[{string.Join(", ", _items.Select(x => $"{x}"))}]";
 
-        public ValueList<T> WithEach(Action<T> changeItem)
+        public ReadOnlyList<T> WithEach(Action<T> changeItem)
         {
             _items.ForEach(changeItem);
             return this;
@@ -57,6 +55,6 @@ namespace CineMarco.EventSourcing.Csharp9.Common
 
     public static class ValueListExtensions
     {
-        public static ValueList<T> ToValueList<T>(this IEnumerable<T> source) => new(source);
+        public static ReadOnlyList<T> ToReadOnlyList<T>(this IEnumerable<T> source) => new(source);
     }
 }

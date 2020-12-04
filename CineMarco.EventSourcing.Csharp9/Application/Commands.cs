@@ -4,5 +4,5 @@ namespace CineMarco.EventSourcing.Csharp9.Application
 {
     public interface ICommand { } // Marker interface
 
-    public sealed record ReserveSeats(ScreeningId ScreeningId, NumberOfSeats Seats) : ICommand;
+    public sealed record ReserveSeatsInBulk(ScreeningId ScreeningId, NumberOfSeats Seats) : ICommand;
 }

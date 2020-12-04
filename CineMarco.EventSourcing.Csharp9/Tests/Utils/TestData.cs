@@ -1,22 +1,28 @@
-using System.Collections.Generic;
 using System.Linq;
+using CineMarco.EventSourcing.Csharp9.Application;
 using CineMarco.EventSourcing.Csharp9.Common;
 using CineMarco.EventSourcing.Csharp9.Domain;
 
-namespace CineMarco.EventSourcing.Csharp9.Tests.Helpers
+namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
 {
-    public record ScreeningData(ScreeningId Id, ValueList<Seat> Seats)
+    public record ScreeningData(ScreeningId ScreeningId, ReadOnlyList<SeatNumber> Seats)
     {
-        public static ScreeningData ScreeningWith(int numberOfSeats) =>
-            new(ScreeningId.Generate(), GenerateSeats(numberOfSeats));
+        public static ScreeningData ScreeningWithSeats(params string[] seatNumbers) =>
+            new( ScreeningId.Generate(), SeatsOf(seatNumbers));
 
-        private static ValueList<Seat> GenerateSeats(int numberOfSeats) =>
-            SeatNumber.Generate(numberOfSeats)
-                      .Select(num => new Seat(num))
-                      .ToValueList();
+        private static ReadOnlyList<SeatNumber> SeatsOf(string[] seatNumbers) =>
+            seatNumbers.Select(n => new SeatNumber(n)).ToReadOnlyList();
 
-        public ValueList<Seat> SeatsWithNumber(params int[] numbers) =>
-            Seats.Where(x => numbers.Contains(x.Number.Value))
-                 .ToValueList();
+        public ScreeningIsInitialized IsInitialized() =>
+            new(ScreeningId, Seats);
+
+        public SeatsAreReserved HasSeatsReserved(params string[] seatNumbers) =>
+            new(ScreeningId, SeatsOf(seatNumbers));
+
+        public SeatsBulkReservationFailed HasFailedToReserveSeats(int numberOfSeats) =>
+            new(ScreeningId, numberOfSeats);
+
+        public ICommand ReserveSeatsInBulk(int numberOfSeats) =>
+            new ReserveSeatsInBulk(ScreeningId, new NumberOfSeats(numberOfSeats));
     }
 }

@@ -6,14 +6,19 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 {
     public interface IDomainEvent { } // Marker interface
 
-    public sealed record ScreeningInitialized(ScreeningId ScreeningId, IEnumerable<Seat> Seats) : AuditedEvent;
-
-    public sealed record SeatsReserved(ScreeningId ScreeningId, ValueList<Seat> Seats) : AuditedEvent;
-
-    public sealed record SeatsNotReserved(ScreeningId ScreeningId, NumberOfSeats Seats) : AuditedEvent;
-
     public record AuditedEvent(DateTimeOffset At) : IDomainEvent
     {
         protected AuditedEvent() : this(ClockUtc.Now) { }
     }
+
+    public sealed record ScreeningIsInitialized(
+        ScreeningId ScreeningId, IReadOnlyList<SeatNumber> Seats) : AuditedEvent;
+
+    public sealed record SeatsAreReserved(ScreeningId ScreeningId, IReadOnlyList<SeatNumber> Seats) : AuditedEvent;
+
+    public enum ReservationFailureReason { NotEnoughSeatsAvailable }
+
+    public sealed record SeatsBulkReservationFailed(
+        ScreeningId ScreeningId, int NumberOfSeats,
+        ReservationFailureReason Reason = ReservationFailureReason.NotEnoughSeatsAvailable) : AuditedEvent;
 }

@@ -2,29 +2,24 @@ using System;
 
 namespace CineMarco.EventSourcing.Csharp9.Domain
 {
-    public sealed class Seat : Entity
+    public sealed record SeatNumber(string Value)
     {
-        public SeatNumber Number { get; }
+        public Seat ToSeat() => new(this);
+    }
 
-        public Seat(SeatNumber number)
-        {
-            Number = number;
-        }
-
-        public DateTimeOffset? ReservationDate { get; private set; }
-
+    public sealed record Seat(SeatNumber Number, DateTimeOffset? ReservationDate = null)
+    {
         public bool IsReserved => ReservationDate.HasValue;
 
-        public Seat Reserve()
+        public Seat Reserve(DateTimeOffset? at = null)
         {
             if (IsReserved)
                 throw new ApplicationException("Cannot reserve a seat twice");
-
-            ReservationDate = DateTimeOffset.UtcNow;
-            return this;
+            else
+                return this with { ReservationDate = at ?? DateTimeOffset.UtcNow };
         }
 
-        public override string ToString() => $"Seat #{Number.Value}{ReservationInfo}, Id = {Id}";
+        public override string ToString() => $"Seat #{Number.Value}{ReservationInfo}";
 
         private string ReservationInfo =>
             ReservationDate.HasValue
