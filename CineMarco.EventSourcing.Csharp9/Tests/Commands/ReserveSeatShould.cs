@@ -4,7 +4,7 @@ using CineMarco.EventSourcing.Csharp9.Tests.Helpers;
 using Xunit;
 using static CineMarco.EventSourcing.Csharp9.Tests.Helpers.ScreeningData;
 
-namespace CineMarco.EventSourcing.Csharp9.Tests
+namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
 {
     public class ReserveSeatShould : TestBase
     {

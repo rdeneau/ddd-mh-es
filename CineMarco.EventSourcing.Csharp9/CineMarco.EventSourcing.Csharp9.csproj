@@ -28,4 +28,9 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Tests\Queries" />
+    <Folder Include="Tests\Scenarios" />
+  </ItemGroup>
+
 </Project>

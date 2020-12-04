@@ -10,7 +10,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Helpers
 
         private readonly FakeEventBus _eventBus = new();
 
-        protected void Given(params IEvent[] events)
+        protected void Given(params IDomainEvent[] events)
         {
             _eventStore.Initialize(events);
         }
@@ -21,7 +21,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Helpers
             handler.Handle(command);
         }
 
-        protected void ThenExpect(params IEvent[] events)
+        protected void ThenExpect(params IDomainEvent[] events)
         {
             _eventBus.PublishedEvents.ShouldBe(events);
         }

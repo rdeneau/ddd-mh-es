@@ -6,8 +6,8 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Helpers
 {
     public class FakeEventBus : IEventBus
     {
-        public List<IEvent> PublishedEvents { get; } = new();
+        public List<IDomainEvent> PublishedEvents { get; } = new();
 
-        public void Publish(IEvent @event) => PublishedEvents.Add(@event);
+        public void Publish(IDomainEvent @event) => PublishedEvents.Add(@event);
     }
 }

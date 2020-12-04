@@ -7,14 +7,14 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Helpers
 {
     public class FakeEventStore : IEventStore
     {
-        private readonly List<IEvent> _events = new();
+        private readonly List<IDomainEvent> _events = new();
 
-        public void Initialize(IEnumerable<IEvent> events)
+        public void Initialize(IEnumerable<IDomainEvent> events)
         {
             _events.AddRange(events);
         }
 
-        public IEnumerable<IEvent> Search(string by) =>
+        public IEnumerable<IDomainEvent> Search(string by) =>
             _events.Where(x => $"{x}".Contains(by)); // Use AuditedEvent record ToString() generated method
     }
 }

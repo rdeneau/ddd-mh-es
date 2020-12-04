@@ -9,14 +9,14 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
         public List<Seat> Seats { get; } = new();
 
-        public ScreeningState(IEnumerable<IEvent> history)
+        public ScreeningState(IEnumerable<IDomainEvent> history)
         {
             foreach (dynamic @event in history)
                 Apply(@event); // Dynamic dispatch
         }
 
         // Fallback "Apply" method, compulsory to secure the previous dynamic dispatch
-        private void Apply(IEvent _) { }
+        private void Apply(IDomainEvent _) { }
 
         private void Apply(ScreeningInitialized @event)
         {
