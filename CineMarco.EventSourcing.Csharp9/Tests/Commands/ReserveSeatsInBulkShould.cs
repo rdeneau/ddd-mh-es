@@ -1,11 +1,14 @@
 using CineMarco.EventSourcing.Csharp9.Tests.Utils;
 using Xunit;
+using Xunit.Abstractions;
 using static CineMarco.EventSourcing.Csharp9.Tests.Utils.ScreeningData;
 
 namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
 {
     public class ReserveSeatsInBulkShould : TestBase
     {
+        public ReserveSeatsInBulkShould(ITestOutputHelper outputHelper) : base(outputHelper) { }
+
         [Fact]
         public void Reserve_first_seat()
         {
