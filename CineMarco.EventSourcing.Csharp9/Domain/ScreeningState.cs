@@ -4,9 +4,11 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 {
     public class ScreeningState
     {
-        private ScreeningId ScreeningId { get; set; } = ScreeningId.Undefined;
+        public ScreeningId Id { get; set; } = ScreeningId.Undefined;
 
-        public Dictionary<SeatNumber, Seat> Seats { get; } = new();
+        private Dictionary<SeatNumber, Seat> SeatMap { get; } = new();
+
+        public IEnumerable<Seat> Seats => SeatMap.Values;
 
         public ScreeningState(IEnumerable<IDomainEvent> history)
         {
@@ -19,15 +21,15 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
         private void Apply(ScreeningIsInitialized @event)
         {
-            ScreeningId = @event.ScreeningId;
+            Id = @event.ScreeningId;
             foreach (var seatNumber in @event.Seats)
-                Seats.Add(seatNumber, seatNumber.ToSeat());
+                SeatMap.Add(seatNumber, seatNumber.ToSeat());
         }
 
         private void Apply(SeatsAreReserved @event)
         {
             foreach (var seat in @event.Seats)
-                Seats[seat] = Seats[seat].Reserve(@event.At);
+                SeatMap[seat] = SeatMap[seat].Reserve(@event.At);
         }
     }
 }

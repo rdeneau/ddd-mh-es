@@ -3,9 +3,9 @@ using Xunit;
 
 namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
 {
-    public class ReserveSeatsInBulkShould : TestBase
+    public class ReserveSeatsShould : TestBase
     {
-        public ReserveSeatsInBulkShould()
+        public ReserveSeatsShould()
         {
             IgnoreEventTimestamp = true;
         }
@@ -17,7 +17,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
 
             Given(screening.IsInitialized());
 
-            When(screening.ReserveSeatsInBulk(numberOfSeats: 1));
+            When(screening.ReserveSeats("A"));
 
             ThenExpect(screening.HasSeatsReserved("A"));
         }
@@ -30,7 +30,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
             Given(screening.IsInitialized(),
                   screening.HasSeatsReserved("A"));
 
-            When(screening.ReserveSeatsInBulk(numberOfSeats: 1));
+            When(screening.ReserveSeats("B"));
 
             ThenExpect(screening.HasSeatsReserved("B"));
         }
@@ -43,7 +43,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
             Given(screening.IsInitialized(),
                   screening.HasSeatsReserved("A", "C"));
 
-            When(screening.ReserveSeatsInBulk(numberOfSeats: 2));
+            When(screening.ReserveSeats("B", "D"));
 
             ThenExpect(screening.HasSeatsReserved("B", "D"));
         }
@@ -56,21 +56,22 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
             Given(screening.IsInitialized(),
                   screening.HasSeatsReserved("A"));
 
-            When(screening.ReserveSeatsInBulk(numberOfSeats: 1));
+            When(screening.ReserveSeats("A"));
 
-            ThenExpect(screening.HasFailedToBulkReserveSeats(numberOfSeats: 1));
+            ThenExpect(screening.HasFailedToReserveSeats("A"));
         }
 
         [Fact]
-        public void Fail_to_reserve_too_much_seat_for_the_screening()
+        public void Fail_to_reserve_a_seat_not_known()
         {
             var screening = ScreeningData.WithSeats("A");
 
-            Given(screening.IsInitialized());
+            Given(screening.IsInitialized(),
+                  screening.HasSeatsReserved("A"));
 
-            When(screening.ReserveSeatsInBulk(numberOfSeats: 2));
+            When(screening.ReserveSeats("X"));
 
-            ThenExpect(screening.HasFailedToBulkReserveSeats(numberOfSeats: 2));
+            ThenExpect(screening.HasFailedToReserveSeatsUnknown("X"));
         }
     }
 }

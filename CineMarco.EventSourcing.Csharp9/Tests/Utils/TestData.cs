@@ -9,19 +9,28 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
     public record ScreeningData(ScreeningId ScreeningId, ReadOnlyList<SeatNumber> Seats)
     {
         public static ScreeningData WithSeats(params string[] seatNumbers) =>
-            new( ScreeningId.Generate(), SeatsOf(seatNumbers));
+            new( ScreeningId.Generate(), SeatsWith(seatNumbers));
 
-        private static ReadOnlyList<SeatNumber> SeatsOf(IEnumerable<string> seatNumbers) =>
-            seatNumbers.Select(n => new SeatNumber(n)).ToReadOnlyList();
+        private static ReadOnlyList<SeatNumber> SeatsWith(IEnumerable<string> seatNumbers) =>
+            seatNumbers.Select(i => new SeatNumber(i)).ToReadOnlyList();
 
         public ScreeningIsInitialized IsInitialized() =>
             new(ScreeningId, Seats);
 
         public SeatsAreReserved HasSeatsReserved(params string[] seatNumbers) =>
-            new(ScreeningId, SeatsOf(seatNumbers));
+            new(ScreeningId, SeatsWith(seatNumbers));
 
-        public SeatsBulkReservationFailed HasFailedToReserveSeats(int numberOfSeats) =>
+        public SeatsReservationFailed HasFailedToReserveSeats(params string[] seatNumbers) =>
+            new(ScreeningId, SeatsWith(seatNumbers));
+
+        public SeatsReservationFailed HasFailedToReserveSeatsUnknown(params string[] seatNumbers) =>
+            new(ScreeningId, SeatsWith(seatNumbers), ReservationFailure.SomeSeatsAreUnknown);
+
+        public SeatsBulkReservationFailed HasFailedToBulkReserveSeats(int numberOfSeats) =>
             new(ScreeningId, numberOfSeats);
+
+        public ICommand ReserveSeats(params string[] seatNumbers) =>
+            new ReserveSeats(ScreeningId, SeatsWith(seatNumbers));
 
         public ICommand ReserveSeatsInBulk(int numberOfSeats) =>
             new ReserveSeatsInBulk(ScreeningId, new NumberOfSeats(numberOfSeats));

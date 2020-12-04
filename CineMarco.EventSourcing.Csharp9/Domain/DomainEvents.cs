@@ -16,9 +16,13 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
     public sealed record SeatsAreReserved(ScreeningId ScreeningId, IReadOnlyList<SeatNumber> Seats) : AuditedEvent;
 
-    public enum ReservationFailureReason { NotEnoughSeatsAvailable }
+    public enum ReservationFailure { NotEnoughSeatsAvailable, SomeSeatsAreUnknown }
+
+    public sealed record SeatsReservationFailed(
+        ScreeningId ScreeningId, IReadOnlyList<SeatNumber> Seats,
+        ReservationFailure Reason = ReservationFailure.NotEnoughSeatsAvailable) : AuditedEvent;
 
     public sealed record SeatsBulkReservationFailed(
         ScreeningId ScreeningId, int NumberOfSeats,
-        ReservationFailureReason Reason = ReservationFailureReason.NotEnoughSeatsAvailable) : AuditedEvent;
+        ReservationFailure Reason = ReservationFailure.NotEnoughSeatsAvailable) : AuditedEvent;
 }

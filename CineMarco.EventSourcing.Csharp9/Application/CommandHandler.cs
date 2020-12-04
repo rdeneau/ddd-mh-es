@@ -7,22 +7,33 @@ namespace CineMarco.EventSourcing.Csharp9.Application
     // Global command handler, for all commands
     public record CommandHandler(IEventStore EventStore, IEventBus EventBus)
     {
-        public void Handle(ICommand cmd)
+        public void Handle(ICommand command)
         {
-            switch (cmd) {
-                case ReserveSeatsInBulk command:
-                    var screeningHistory = EventStore.Search(by: $"ScreeningId = {command.ScreeningId}");
+            Handle((dynamic) command); // ⚠ Dynamic dispatch
+        }
 
-                    // 💡 SRP: state reconstitution in its own class (with the apply methods), separated from behaviors (the real aggregate class that never updates its state, just publishes events)
-                    var screeningState = new ScreeningState(screeningHistory);
-                    var screening      = new Screening(screeningState, EventBus);
+        private void Handle(object command)
+        {
+            throw new ArgumentException($"Not supported command {command.GetType().FullName}", nameof(command));
+        }
 
-                    screening.ReserveSeats(command.ScreeningId, command.Seats);
-                    break;
+        private void Handle(ReserveSeats command)
+        {
+            var screening = ScreeningById(command.ScreeningId);
+            screening.ReserveSeats(command.Seats);
+        }
 
-                default:
-                    throw new ArgumentException($"Not supported command {cmd.GetType().FullName}", nameof(cmd));
-            }
+        private void Handle(ReserveSeatsInBulk command)
+        {
+            var screening = ScreeningById(command.ScreeningId);
+            screening.ReserveSeatsInBulk(command.Seats);
+        }
+
+        private Screening ScreeningById(ScreeningId screeningId)
+        {
+            var history = EventStore.Search(@by: $"ScreeningId = {screeningId}");
+            var state   = new ScreeningState(history);
+            return new Screening(state, EventBus);
         }
     }
 }

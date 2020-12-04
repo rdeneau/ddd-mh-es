@@ -5,6 +5,8 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
     public sealed record SeatNumber(string Value)
     {
         public Seat ToSeat() => new(this);
+
+        public override string ToString() => Value;
     }
 
     public sealed record Seat(SeatNumber Number, DateTimeOffset? ReservationDate = null)
