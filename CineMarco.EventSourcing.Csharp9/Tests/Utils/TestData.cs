@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using CineMarco.EventSourcing.Csharp9.Application;
 using CineMarco.EventSourcing.Csharp9.Common;
@@ -7,24 +6,34 @@ using CineMarco.EventSourcing.Csharp9.Domain;
 
 namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
 {
-    public record BuildScreening(ScreeningId ScreeningId, ReadOnlyList<SeatNumber> Seats)
+    public static class Planned
     {
-        public static BuildScreening WithSeats(params string[] seatNumbers) =>
-            new(ScreeningId.Generate(), SeatsWith(seatNumbers));
+        public static DateTimeOffset Later(int minutes) =>
+            DateTimeOffset.UtcNow.AddMinutes(minutes);
 
-        private static ReadOnlyList<SeatNumber> SeatsWith(IEnumerable<string> seatNumbers) =>
+        public static DateTimeOffset Tomorrow =>
+            DateTimeOffset.UtcNow.AddDays(1);
+    }
+
+    public static class Seats
+    {
+        public static ReadOnlyList<SeatNumber> Number(params string[] seatNumbers) =>
             seatNumbers.Select(i => new SeatNumber(i)).ToReadOnlyList();
+    }
+
+    public class ScreeningData
+    {
+        public ScreeningId ScreeningId { get; } = ScreeningId.Generate();
 
         public DateTimeOffset ScreeningDate { get; private set; }
 
-        public BuildScreening PlannedTomorrow() =>
-            this with { ScreeningDate = DateTimeOffset.UtcNow.AddDays(1) };
+        public ReadOnlyList<SeatNumber> SeatNumbers { get; private set; } = new();
 
-        public BuildScreening PlannedLater(int minutesBeforeScreening) =>
-            this with { ScreeningDate = DateTimeOffset.UtcNow.AddMinutes(minutesBeforeScreening) };
-
-        public ScreeningIsInitialized IsInitialized() =>
-            new(ScreeningId, ScreeningDate, Seats);
+        public ScreeningIsInitialized IsInitialized(DateTimeOffset screeningDate, ReadOnlyList<SeatNumber> seatNumbers) =>
+            new(
+                ScreeningId,
+                ScreeningDate = screeningDate,
+                SeatNumbers   = seatNumbers);
 
         public SeatsAreReserved HasSeatsReserved(params string[] seatNumbers) =>
             new(ScreeningId, SeatsWith(seatNumbers));
@@ -46,5 +55,8 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
 
         public ICommand ReserveSeatsInBulk(int numberOfSeats) =>
             new ReserveSeatsInBulk(ScreeningId, new NumberOfSeats(numberOfSeats));
+
+        private static ReadOnlyList<SeatNumber> SeatsWith(string[] seatNumbers) =>
+            Seats.Number(seatNumbers);
     }
 }

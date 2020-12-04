@@ -19,6 +19,11 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
 
         private IEnumerable<IDomainEvent> PublishedEvents => _eventBus.Events;
 
+        protected TestBase()
+        {
+            IgnoreEventTimestamp = true;
+        }
+
         protected void Given(params IDomainEvent[] events)
         {
             _eventStore.Initialize(events);
