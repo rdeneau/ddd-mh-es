@@ -1,5 +1,5 @@
 using CineMarco.EventSourcing.Csharp9.Application;
-using CineMarco.EventSourcing.Csharp9.Common;
+using CineMarco.EventSourcing.Csharp9.Domain;
 using Shouldly;
 
 namespace CineMarco.EventSourcing.Csharp9.Tests.Helpers

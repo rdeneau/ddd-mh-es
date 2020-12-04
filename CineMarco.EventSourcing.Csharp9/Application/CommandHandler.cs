@@ -1,7 +1,6 @@
 using System;
-using System.Linq;
-using CineMarco.EventSourcing.Csharp9.Common;
 using CineMarco.EventSourcing.Csharp9.Domain;
+using CineMarco.EventSourcing.Csharp9.Domain.Contracts;
 
 namespace CineMarco.EventSourcing.Csharp9.Application
 {

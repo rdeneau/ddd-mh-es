@@ -5,12 +5,12 @@ using CineMarco.EventSourcing.Csharp9.Domain;
 
 namespace CineMarco.EventSourcing.Csharp9.Tests.Helpers
 {
-    public record ScreeningData(ScreeningId Id, IReadOnlyList<Seat> Seats)
+    public record ScreeningData(ScreeningId Id, ValueList<Seat> Seats)
     {
         public static ScreeningData ScreeningWith(int numberOfSeats) =>
             new(ScreeningId.Generate(), GenerateSeats(numberOfSeats));
 
-        private static IReadOnlyList<Seat> GenerateSeats(int numberOfSeats) =>
+        private static ValueList<Seat> GenerateSeats(int numberOfSeats) =>
             SeatNumber.Generate(numberOfSeats)
                       .Select(num => new Seat(num))
                       .ToValueList();

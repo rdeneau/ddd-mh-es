@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using CineMarco.EventSourcing.Csharp9.Common;
 
 namespace CineMarco.EventSourcing.Csharp9.Domain
 {
