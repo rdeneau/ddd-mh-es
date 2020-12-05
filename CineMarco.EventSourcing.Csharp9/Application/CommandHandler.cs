@@ -9,21 +9,21 @@ namespace CineMarco.EventSourcing.Csharp9.Application
     {
         public void Handle(ICommand command)
         {
-            Handle((dynamic) command); // ⚠ Dynamic dispatch
+            HandleCore((dynamic) command); // ⚠ Dynamic dispatch
         }
 
-        private void Handle(object command)
+        private void HandleCore(object command)
         {
             throw new ArgumentException($"Not supported command {command.GetType().FullName}", nameof(command));
         }
 
-        private void Handle(ReserveSeats command)
+        private void HandleCore(ReserveSeats command)
         {
             var screeningReservation = ScreeningReservationById(command.ScreeningId);
             screeningReservation.ReserveSeats(command.Seats);
         }
 
-        private void Handle(ReserveSeatsInBulk command)
+        private void HandleCore(ReserveSeatsInBulk command)
         {
             var screeningReservation = ScreeningReservationById(command.ScreeningId);
             screeningReservation.ReserveSeatsInBulk(command.Seats);

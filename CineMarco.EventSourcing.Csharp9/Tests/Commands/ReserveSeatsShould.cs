@@ -116,7 +116,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
             Given(
                 screening.IsInitialized(Occurring.Tomorrow, Seats.Number("A", "B")),
                 screening.HasSeatsReserved("A") with { At = Occurring.Sooner(minutesAgo: 12) },
-                screening.HasSeatsReservationExpired("A")); // TODO: create a command checking that, trigger 13-minutes after the reservation
+                screening.HasSeatsReservationExpired("A"));
 
             When(
                 screening.ReserveSeats("A"));

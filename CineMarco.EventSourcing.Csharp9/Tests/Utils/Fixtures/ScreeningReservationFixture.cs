@@ -38,6 +38,9 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils.Fixtures
         public SeatsBulkReservationFailed HasFailedToBulkReserveSeats(int numberOfSeats) =>
             new(ScreeningId, numberOfSeats);
 
+        public ICommand CheckSeatsReservationExpiration(params string[] seatNumbers) =>
+            new CheckSeatsReservationExpiration(ScreeningId, SeatsWith(seatNumbers));
+
         public ICommand ReserveSeats(params string[] seatNumbers) =>
             new ReserveSeats(ScreeningId, SeatsWith(seatNumbers));
 
