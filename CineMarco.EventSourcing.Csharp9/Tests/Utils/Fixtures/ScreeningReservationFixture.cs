@@ -8,11 +8,11 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils.Fixtures
 {
     public class ScreeningReservationFixture
     {
-        public ScreeningId ScreeningId { get; } = ScreeningId.Generate();
+        private ScreeningId ScreeningId { get; } = ScreeningId.Generate();
 
-        public DateTimeOffset ScreeningDate { get; private set; }
+        private DateTimeOffset ScreeningDate { get; set; }
 
-        public ReadOnlyList<SeatNumber> SeatNumbers { get; private set; } = new();
+        private ReadOnlyList<SeatNumber> SeatNumbers { get; set; } = new();
 
         public ScreeningIsInitialized IsInitialized(DateTimeOffset screeningDate, ReadOnlyList<SeatNumber> seatNumbers) =>
             new(

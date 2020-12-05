@@ -124,5 +124,18 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
             ThenExpect(
                 screening.HasSeatsReserved("A"));
         }
+
+        [Fact]
+        public void Schedule_reservation_expiration_check()
+        {
+            Given(
+                screening.IsInitialized(Occurring.Tomorrow, Seats.Number("A", "B", "C")));
+
+            When(
+                screening.ReserveSeats("A", "B"));
+
+            ThenExpectSchedule(
+                screening.CheckSeatsReservationExpiration("A", "B"));
+        }
     }
 }

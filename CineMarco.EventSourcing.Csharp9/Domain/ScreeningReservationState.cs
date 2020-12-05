@@ -47,5 +47,10 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
                 SeatMap[seatNumber] = SeatMap[seatNumber].RemoveReservation();
             }
         }
+
+        public Seat? Seat(SeatNumber seatNumber) =>
+            SeatMap.TryGetValue(seatNumber, out var seat)
+                ? seat
+                : null;
     }
 }

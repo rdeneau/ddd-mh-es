@@ -6,23 +6,23 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 {
     public interface IDomainEvent { } // Marker interface
 
+    public interface IScreeningReservationEvent : IDomainEvent { } // Marker interface
+
     public record AuditedEvent(DateTimeOffset At) : IDomainEvent
     {
         protected AuditedEvent() : this(ClockUtc.Now) { }
     }
 
     public sealed record ScreeningIsInitialized(
-        ScreeningId ScreeningId,
-        DateTimeOffset ScreeningDate,
-        IReadOnlyList<SeatNumber> Seats) : AuditedEvent;
+        ScreeningId               ScreeningId,
+        DateTimeOffset            ScreeningDate,
+        IReadOnlyList<SeatNumber> Seats
+    ) : AuditedEvent;
 
     public sealed record SeatsAreReserved(
-        ScreeningId ScreeningId,
-        IReadOnlyList<SeatNumber> Seats) : AuditedEvent;
-
-    public sealed record SeatReservationHasExpired(
-        ScreeningId ScreeningId,
-        IReadOnlyList<SeatNumber> Seats) : AuditedEvent;
+        ScreeningId               ScreeningId,
+        IReadOnlyList<SeatNumber> Seats
+    ) : AuditedEvent, IScreeningReservationEvent;
 
     public enum ReservationFailure
     {
@@ -32,12 +32,19 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
     }
 
     public sealed record SeatsReservationFailed(
-        ScreeningId ScreeningId,
+        ScreeningId               ScreeningId,
         IReadOnlyList<SeatNumber> Seats,
-        ReservationFailure Reason = ReservationFailure.NotEnoughSeatsAvailable) : AuditedEvent;
+        ReservationFailure        Reason = ReservationFailure.NotEnoughSeatsAvailable
+    ) : AuditedEvent, IScreeningReservationEvent;
 
     public sealed record SeatsBulkReservationFailed(
         ScreeningId ScreeningId,
         int NumberOfSeats,
-        ReservationFailure Reason = ReservationFailure.NotEnoughSeatsAvailable) : AuditedEvent;
+        ReservationFailure Reason = ReservationFailure.NotEnoughSeatsAvailable
+    ) : AuditedEvent, IScreeningReservationEvent;
+
+    public sealed record SeatReservationHasExpired(
+        ScreeningId               ScreeningId,
+        IReadOnlyList<SeatNumber> Seats
+    ) : AuditedEvent;
 }

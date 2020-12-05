@@ -12,7 +12,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
         [Theory]
         [InlineData(12)]
         [InlineData(15)]
-        public void Remove_reservation_expired(int minutesAgo)
+        public void Remove_reservation_expired_after(int minutesAgo)
         {
             Given(
                 screening.IsInitialized(Occurring.Tomorrow, Seats.Number("A", "B")),
@@ -20,6 +20,21 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
 
             When(
                 screening.CheckSeatsReservationExpiration("A"));
+
+            ThenExpect(
+                screening.HasSeatsReservationExpired("A"));
+        }
+
+        [Fact]
+        public void Remove_reservation_expired_only_for_given_seats()
+        {
+            Given(
+                screening.IsInitialized(Occurring.Tomorrow, Seats.Number("A", "B")),
+                screening.HasSeatsReserved("A") with { At = Occurring.Sooner(minutesAgo: 15) },
+                screening.HasSeatsReserved("B") with { At = Occurring.Sooner(minutesAgo: 10) });
+
+            When(
+                screening.CheckSeatsReservationExpiration("A", "B"));
 
             ThenExpect(
                 screening.HasSeatsReservationExpired("A"));

@@ -1,4 +1,5 @@
 using System;
+using CineMarco.EventSourcing.Csharp9.Common;
 
 namespace CineMarco.EventSourcing.Csharp9.Domain
 {
@@ -11,6 +12,9 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
     public sealed record Seat(SeatNumber Number, DateTimeOffset? ReservationDate = null)
     {
+        public bool HasReservationOlderThan(int minutes) =>
+            ReservationDate <= ClockUtc.Now.AddMinutes(-minutes);
+
         public bool IsReserved => ReservationDate.HasValue;
 
         public Seat Reserve(DateTimeOffset at) =>

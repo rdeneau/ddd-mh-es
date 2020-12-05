@@ -4,14 +4,16 @@ using System.Linq;
 using CineMarco.EventSourcing.Csharp9.Application;
 using CineMarco.EventSourcing.Csharp9.Domain;
 using CineMarco.EventSourcing.Csharp9.Tests.Utils.Mocks;
+using Moq;
 using Shouldly;
 
 namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
 {
     public class SemanticTest
     {
-        private readonly FakeEventBus   _eventBus   = new();
-        private readonly FakeEventStore _eventStore = new();
+        private readonly FakeEventBus      _eventBus       = new();
+        private readonly FakeEventStore    _eventStore     = new();
+        private readonly Mock<ICommandBus> _commandBusMock = new();
 
         private readonly DateTimeOffset _now = DateTimeOffset.UtcNow;
 
@@ -31,7 +33,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
 
         protected void When(ICommand command)
         {
-            var handler = new CommandHandler(_eventStore, _eventBus);
+            var handler = new CommandHandler(_eventStore, _eventBus, _commandBusMock.Object);
             handler.Handle(command);
         }
 
@@ -58,5 +60,10 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
             @event is AuditedEvent auditedEvent
                 ? auditedEvent with { At = _now }
                 : @event;
+
+        protected void ThenExpectSchedule(ICommand command)
+        {
+            _commandBusMock.Verify(x => x.Schedule(command, It.IsAny<DateTimeOffset>()));
+        }
     }
 }
