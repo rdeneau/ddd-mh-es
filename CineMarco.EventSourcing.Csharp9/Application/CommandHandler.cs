@@ -19,21 +19,21 @@ namespace CineMarco.EventSourcing.Csharp9.Application
 
         private void Handle(ReserveSeats command)
         {
-            var screening = ScreeningById(command.ScreeningId);
-            screening.ReserveSeats(command.Seats);
+            var screeningReservation = ScreeningReservationById(command.ScreeningId);
+            screeningReservation.ReserveSeats(command.Seats);
         }
 
         private void Handle(ReserveSeatsInBulk command)
         {
-            var screening = ScreeningById(command.ScreeningId);
-            screening.ReserveSeatsInBulk(command.Seats);
+            var screeningReservation = ScreeningReservationById(command.ScreeningId);
+            screeningReservation.ReserveSeatsInBulk(command.Seats);
         }
 
-        private Screening ScreeningById(ScreeningId screeningId)
+        private ScreeningReservation ScreeningReservationById(ScreeningId screeningId)
         {
             var history = EventStore.Search(@by: $"ScreeningId = {screeningId}");
-            var state   = new ScreeningState(history);
-            return new Screening(state, EventBus);
+            var state   = new ScreeningReservationState(history);
+            return new(state, EventBus);
         }
     }
 }

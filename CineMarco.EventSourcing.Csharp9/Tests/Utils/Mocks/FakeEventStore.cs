@@ -3,7 +3,7 @@ using System.Linq;
 using CineMarco.EventSourcing.Csharp9.Domain;
 using CineMarco.EventSourcing.Csharp9.Domain.Contracts;
 
-namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
+namespace CineMarco.EventSourcing.Csharp9.Tests.Utils.Mocks
 {
     public class FakeEventStore : IEventStore
     {

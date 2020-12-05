@@ -1,27 +1,11 @@
 using System;
-using System.Linq;
 using CineMarco.EventSourcing.Csharp9.Application;
 using CineMarco.EventSourcing.Csharp9.Common;
 using CineMarco.EventSourcing.Csharp9.Domain;
 
-namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
+namespace CineMarco.EventSourcing.Csharp9.Tests.Utils.Fixtures
 {
-    public static class Planned
-    {
-        public static DateTimeOffset Later(int minutes) =>
-            DateTimeOffset.UtcNow.AddMinutes(minutes);
-
-        public static DateTimeOffset Tomorrow =>
-            DateTimeOffset.UtcNow.AddDays(1);
-    }
-
-    public static class Seats
-    {
-        public static ReadOnlyList<SeatNumber> Number(params string[] seatNumbers) =>
-            seatNumbers.Select(i => new SeatNumber(i)).ToReadOnlyList();
-    }
-
-    public class ScreeningData
+    public class ScreeningReservationFixture
     {
         public ScreeningId ScreeningId { get; } = ScreeningId.Generate();
 

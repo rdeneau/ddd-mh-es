@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using CineMarco.EventSourcing.Csharp9.Application;
 using CineMarco.EventSourcing.Csharp9.Domain;
+using CineMarco.EventSourcing.Csharp9.Tests.Utils.Mocks;
 using Shouldly;
 
 namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
 {
-    public class TestBase
+    public class SemanticTest
     {
         private readonly FakeEventBus   _eventBus   = new();
         private readonly FakeEventStore _eventStore = new();
@@ -19,7 +19,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
 
         private IEnumerable<IDomainEvent> PublishedEvents => _eventBus.Events;
 
-        protected TestBase()
+        protected SemanticTest()
         {
             IgnoreEventTimestamp = true;
         }
@@ -33,10 +33,16 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
         {
             var handler = new CommandHandler(_eventStore, _eventBus);
             handler.Handle(command);
-
-            Thread.Sleep(10);
         }
 
+        /// <summary>
+        /// Check that the given <paramref name="expectedEvents"/> equal the events published
+        /// in the event bus <see cref="When"/> executing the command.
+        /// </summary>
+        /// <remarks>
+        /// Use <see cref="IgnoreEventTimestamp"/> to compare (<c>false</c>) or ignore (<c>true</c>, by default)
+        /// the timestamp of any <see cref="AuditedEvent"/>.
+        /// </remarks>
         protected void ThenExpect(params IDomainEvent[] expectedEvents)
         {
             Sanitize(PublishedEvents)

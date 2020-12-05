@@ -5,7 +5,7 @@ using CineMarco.EventSourcing.Csharp9.Domain.Contracts;
 
 namespace CineMarco.EventSourcing.Csharp9.Domain
 {
-    public record Screening(ScreeningState State, IEventBus EventBus)
+    public record ScreeningReservation(ScreeningReservationState State, IEventBus EventBus)
     {
         public void ReserveSeats(IReadOnlyList<SeatNumber> seats)
         {
