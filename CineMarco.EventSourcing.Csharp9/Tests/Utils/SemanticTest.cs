@@ -9,6 +9,20 @@ using Shouldly;
 
 namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
 {
+    /// <summary>
+    /// Base class for semantic tests (BDD style)
+    ///
+    /// For Commands:
+    /// - <see cref="Given(IDomainEvent[])"/>
+    /// - <see cref="When(ICommand)"/>
+    /// - <see cref="ThenExpect(IDomainEvent[])"/> or
+    ///   <see cref="ThenExpectSchedule(ICommand)"/>
+    ///
+    /// For Queries :
+    /// - <see cref="Given(IDomainEvent[])"/>
+    /// - <see cref="WhenQuery(IQuery)"/>
+    /// - <see cref="ThenExpect(IQueryResponse)"/>
+    /// </summary>
     public class SemanticTest
     {
         private readonly FakeEventBus      _eventBus       = new();
@@ -16,6 +30,8 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
         private readonly Mock<ICommandBus> _commandBusMock = new();
 
         private readonly DateTimeOffset _now = DateTimeOffset.UtcNow;
+
+        private IQueryResponse? _response;
 
         protected bool IgnoreEventTimestamp { get; set; }
 
@@ -37,6 +53,12 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
             handler.Handle(command);
         }
 
+        protected void WhenQuery(IQuery query)
+        {
+            var handler = new QueryHandler();
+            _response = handler.Handle((dynamic) query);
+        }
+
         /// <summary>
         /// Check that the given <paramref name="expectedEvents"/> equal the events published
         /// in the event bus <see cref="When"/> executing the command.
@@ -45,11 +67,9 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
         /// Use <see cref="IgnoreEventTimestamp"/> to compare (<c>false</c>) or ignore (<c>true</c>, by default)
         /// the timestamp of any <see cref="AuditedEvent"/>.
         /// </remarks>
-        protected void ThenExpect(params IDomainEvent[] expectedEvents)
-        {
+        protected void ThenExpect(params IDomainEvent[] expectedEvents) =>
             Sanitize(PublishedEvents)
                 .ShouldBe(Sanitize(expectedEvents));
-        }
 
         private IEnumerable<IDomainEvent> Sanitize(IEnumerable<IDomainEvent> events) =>
             IgnoreEventTimestamp
@@ -61,9 +81,10 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
                 ? auditedEvent with { At = _now }
                 : @event;
 
-        protected void ThenExpectSchedule(ICommand command)
-        {
+        protected void ThenExpect(IQueryResponse expectedResponse) =>
+            _response.ShouldBe(expectedResponse);
+
+        protected void ThenExpectSchedule(ICommand command) =>
             _commandBusMock.Verify(x => x.Schedule(command, It.IsAny<DateTimeOffset>()));
-        }
     }
 }

@@ -4,9 +4,11 @@ using CineMarco.EventSourcing.Csharp9.Common;
 
 namespace CineMarco.EventSourcing.Csharp9.Domain
 {
-    public interface IDomainEvent { } // Marker interface
-
-    public interface IScreeningReservationEvent : IDomainEvent { } // Marker interface
+    /// <summary>
+    /// Naming convention: start with verb in the past tense
+    /// E.g. "SeatsAreReserved"
+    /// </summary>
+    public interface IDomainEvent : IMarkerInterface { }
 
     public record AuditedEvent(DateTimeOffset At) : IDomainEvent
     {
@@ -18,6 +20,8 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
         DateTimeOffset            ScreeningDate,
         IReadOnlyList<SeatNumber> Seats
     ) : AuditedEvent;
+
+    public interface IScreeningReservationEvent : IDomainEvent { }
 
     public sealed record SeatsAreReserved(
         ScreeningId               ScreeningId,
@@ -46,5 +50,5 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
     public sealed record SeatReservationHasExpired(
         ScreeningId               ScreeningId,
         IReadOnlyList<SeatNumber> Seats
-    ) : AuditedEvent;
+    ) : AuditedEvent, IScreeningReservationEvent;
 }

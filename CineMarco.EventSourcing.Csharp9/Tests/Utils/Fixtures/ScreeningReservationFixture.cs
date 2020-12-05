@@ -14,6 +14,12 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils.Fixtures
 
         private ReadOnlyList<SeatNumber> SeatNumbers { get; set; } = new();
 
+        public ScreeningAvailableSeats AvailableSeats() =>
+            new(ScreeningId);
+
+        public ScreeningAvailableSeatsResponse AvailableSeatsResponse(params string[] seatNumbers) =>
+            new(ScreeningId, SeatsWith(seatNumbers));
+
         public ScreeningIsInitialized IsInitialized(DateTimeOffset screeningDate, ReadOnlyList<SeatNumber> seatNumbers) =>
             new(
                 ScreeningId,
