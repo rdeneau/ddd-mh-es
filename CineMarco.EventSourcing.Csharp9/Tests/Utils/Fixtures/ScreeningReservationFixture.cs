@@ -2,6 +2,7 @@ using System;
 using CineMarco.EventSourcing.Csharp9.Application;
 using CineMarco.EventSourcing.Csharp9.Common;
 using CineMarco.EventSourcing.Csharp9.Domain;
+using CineMarco.EventSourcing.Csharp9.Tests.Utils.DataHelpers;
 
 namespace CineMarco.EventSourcing.Csharp9.Tests.Utils.Fixtures
 {
