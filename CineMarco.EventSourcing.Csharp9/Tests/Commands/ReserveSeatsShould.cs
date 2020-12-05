@@ -110,14 +110,13 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
                 screening.HasFailedToReserveSeatsTooClosedToScreeningTime("A"));
         }
 
-        [Theory]
-        [InlineData(13)]
-        [InlineData(15)]
-        public void Reserve_a_seat_given_previous_reservation_expired_after_12_minutes_without_booking(int minutesAgo)
+        [Fact]
+        public void Reserve_a_seat_given_previous_reservation_expired()
         {
             Given(
                 screening.IsInitialized(Occurring.Tomorrow, Seats.Number("A", "B")),
-                screening.HasSeatsReserved("A") with { At = Occurring.Sooner(minutesAgo) });
+                screening.HasSeatsReserved("A") with { At = Occurring.Sooner(minutesAgo: 12) },
+                screening.HasSeatsReservationExpired("A")); // TODO: create a command checking that, trigger 13-minutes after the reservation
 
             When(
                 screening.ReserveSeats("A"));

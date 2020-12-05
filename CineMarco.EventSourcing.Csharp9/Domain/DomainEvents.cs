@@ -20,6 +20,10 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
         ScreeningId ScreeningId,
         IReadOnlyList<SeatNumber> Seats) : AuditedEvent;
 
+    public sealed record SeatReservationHasExpired(
+        ScreeningId ScreeningId,
+        IReadOnlyList<SeatNumber> Seats) : AuditedEvent;
+
     public enum ReservationFailure
     {
         NotEnoughSeatsAvailable  = 1,

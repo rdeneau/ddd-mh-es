@@ -23,6 +23,9 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils.Fixtures
         public SeatsAreReserved HasSeatsReserved(params string[] seatNumbers) =>
             new(ScreeningId, SeatsWith(seatNumbers));
 
+        public SeatReservationHasExpired HasSeatsReservationExpired(params string[] seatNumbers) =>
+            new(ScreeningId, SeatsWith(seatNumbers));
+
         public SeatsReservationFailed HasFailedToReserveSeats(params string[] seatNumbers) =>
             new(ScreeningId, SeatsWith(seatNumbers));
 

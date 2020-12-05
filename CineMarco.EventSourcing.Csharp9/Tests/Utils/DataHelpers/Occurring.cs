@@ -8,8 +8,8 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils.DataHelpers
         public static DateTimeOffset Later(int minutes) =>
             ClockUtc.Now.AddMinutes(minutes);
 
-        public static DateTimeOffset Sooner(int minutes) =>
-            ClockUtc.Now.AddMinutes(-minutes);
+        public static DateTimeOffset Sooner(int minutesAgo) =>
+            ClockUtc.Now.AddMinutes(-minutesAgo);
 
         public static DateTimeOffset Tomorrow =>
             ClockUtc.Now.AddDays(1);

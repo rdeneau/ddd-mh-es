@@ -34,9 +34,17 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
         private void Apply(SeatsAreReserved @event)
         {
-            foreach (var seat in @event.Seats)
+            foreach (var seatNumber in @event.Seats)
             {
-                SeatMap[seat] = SeatMap[seat].Reserve(@event.At);
+                SeatMap[seatNumber] = SeatMap[seatNumber].Reserve(@event.At);
+            }
+        }
+
+        private void Apply(SeatReservationHasExpired @event)
+        {
+            foreach (var seatNumber in @event.Seats)
+            {
+                SeatMap[seatNumber] = SeatMap[seatNumber].RemoveReservation();
             }
         }
     }

@@ -13,15 +13,14 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
     {
         public bool IsReserved => ReservationDate.HasValue;
 
-        public Seat Reserve(DateTimeOffset? at = null)
-        {
-            if (IsReserved)
-                throw new ApplicationException("Cannot reserve a seat twice");
-            else
-                return this with { ReservationDate = at ?? DateTimeOffset.UtcNow };
-        }
+        public Seat Reserve(DateTimeOffset at) =>
+            this with { ReservationDate = at };
 
-        public override string ToString() => $"Seat #{Number.Value}{ReservationInfo}";
+        public Seat RemoveReservation() =>
+            this with { ReservationDate = null };
+
+        public override string ToString() =>
+            $"Seat #{Number.Value}{ReservationInfo}";
 
         private string ReservationInfo =>
             ReservationDate.HasValue
