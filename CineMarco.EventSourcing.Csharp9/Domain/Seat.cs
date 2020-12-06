@@ -12,8 +12,8 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
     public sealed record Seat(SeatNumber Number, DateTimeOffset? ReservationDate = null)
     {
-        public bool HasReservationOlderThan(int minutes) =>
-            ReservationDate <= ClockUtc.Now.AddMinutes(-minutes);
+        public bool HasReservationExpired(TimeSpan expirationDelay) =>
+            ReservationDate <= ClockUtc.Now.Add(-expirationDelay);
 
         public bool IsReserved => ReservationDate.HasValue;
 

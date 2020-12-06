@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CineMarco.EventSourcing.Csharp9.Common;
@@ -7,7 +8,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 {
     public class ScreeningReservation
     {
-        public const int ExpirationMinutes = 12;
+        public static readonly TimeSpan ExpirationDelay = new(hours: 0, minutes: 12, seconds: 0);
 
         private readonly ScreeningReservationState _state;
 
@@ -31,7 +32,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
         private IEnumerable<SeatNumber> SeatsWithReservationExpired(IEnumerable<SeatNumber> seats) =>
             from   seatNumber in seats
             let    seat = _state.Seat(seatNumber)
-            where  seat?.HasReservationOlderThan(ExpirationMinutes) == true
+            where  seat?.HasReservationExpired(ExpirationDelay) == true
             select seatNumber;
 
         public IScreeningReservationEvent ReserveSeats(IReadOnlyList<SeatNumber> seats) =>

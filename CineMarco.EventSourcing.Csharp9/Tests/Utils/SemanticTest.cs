@@ -10,24 +10,28 @@ using Shouldly;
 namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
 {
     /// <summary>
-    /// Base class for semantic tests (BDD style)
+    /// <para>Base class for semantic tests (BDD style)</para>
     ///
-    /// For Commands:
-    /// - <see cref="Given(IDomainEvent[])"/>
-    /// - <see cref="When(ICommand)"/>
-    /// - <see cref="ThenExpect(IDomainEvent[])"/> or
-    ///   <see cref="ThenExpectSchedule(ICommand)"/>
+    /// <para>For Commands:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="Given(IDomainEvent[])"/></description></item>
+    /// <item><description><see cref="When(ICommand)"/></description></item>
+    /// <item><description><see cref="ThenExpect(IDomainEvent[])"/> or</description></item>
+    /// <item><description><see cref="ThenExpectSchedule(ICommand, TimeSpan?)"/></description></item>
+    /// </list>
     ///
-    /// For Queries :
-    /// - <see cref="Given(IDomainEvent[])"/>
-    /// - <see cref="WhenQuery(IQuery)"/>
-    /// - <see cref="ThenExpect(IQueryResponse)"/>
+    /// <para>For Queries:</para>
+    /// <list type="bullet">
+    /// <item><description><see cref="Given(IDomainEvent[])"/></description></item>
+    /// <item><description><see cref="WhenQuery(IQuery)"/></description></item>
+    /// <item><description><see cref="ThenExpect(IQueryResponse)"/></description></item>
+    /// </list>
     /// </summary>
     public class SemanticTest
     {
-        private readonly FakeEventBus      _eventBus       = new();
-        private readonly FakeEventStore    _eventStore     = new();
-        private readonly Mock<ICommandBus> _commandBusMock = new();
+        private readonly FakeEventBus            _eventBus             = new();
+        private readonly FakeEventStore          _eventStore           = new();
+        private readonly Mock<ICommandScheduler> _commandSchedulerMock = new();
 
         private readonly DateTimeOffset _now = DateTimeOffset.UtcNow;
 
@@ -49,7 +53,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
 
         protected void When(ICommand command)
         {
-            var handler = new CommandHandler(_eventStore, _eventBus, _commandBusMock.Object);
+            var handler = new CommandHandler(_eventStore, _eventBus, _commandSchedulerMock.Object);
             handler.Handle(command);
         }
 
@@ -84,7 +88,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
         protected void ThenExpect(IQueryResponse expectedResponse) =>
             _response.ShouldBe(expectedResponse);
 
-        protected void ThenExpectSchedule(ICommand command) =>
-            _commandBusMock.Verify(x => x.Schedule(command, It.IsAny<DateTimeOffset>()));
+        protected void ThenExpectSchedule(ICommand command, TimeSpan? delay) =>
+            _commandSchedulerMock.Verify(x => x.Schedule(command, delay ?? It.IsAny<TimeSpan>()));
     }
 }

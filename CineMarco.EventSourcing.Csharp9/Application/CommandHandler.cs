@@ -1,5 +1,4 @@
 using System;
-using CineMarco.EventSourcing.Csharp9.Common;
 using CineMarco.EventSourcing.Csharp9.Domain;
 using CineMarco.EventSourcing.Csharp9.Domain.Contracts;
 
@@ -10,15 +9,15 @@ namespace CineMarco.EventSourcing.Csharp9.Application
     /// </summary>
     public class CommandHandler
     {
-        private readonly IEventStore _eventStore;
-        private readonly IEventBus   _eventBus;
-        private readonly ICommandBus _commandBus;
+        private readonly IEventStore       _eventStore;
+        private readonly IEventBus         _eventBus;
+        private readonly ICommandScheduler _commandScheduler;
 
-        public CommandHandler(IEventStore eventStore, IEventBus eventBus, ICommandBus commandBus)
+        public CommandHandler(IEventStore eventStore, IEventBus eventBus, ICommandScheduler commandScheduler)
         {
-            _eventStore = eventStore;
-            _eventBus   = eventBus;
-            _commandBus = commandBus;
+            _eventStore       = eventStore;
+            _eventBus         = eventBus;
+            _commandScheduler = commandScheduler;
         }
 
         public void Handle(ICommand command)
@@ -55,8 +54,8 @@ namespace CineMarco.EventSourcing.Csharp9.Application
         {
             if (reservationEvent is SeatsAreReserved seatsAreReserved)
             {
-                _commandBus.Schedule(new CheckSeatsReservationExpiration(seatsAreReserved.ScreeningId, seatsAreReserved.Seats),
-                                     at: ClockUtc.Now.AddMinutes(ScreeningReservation.ExpirationMinutes));
+                _commandScheduler.Schedule(new CheckSeatsReservationExpiration(seatsAreReserved.ScreeningId, seatsAreReserved.Seats),
+                                          after: ScreeningReservation.ExpirationDelay);
             }
         }
 

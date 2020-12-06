@@ -1,3 +1,4 @@
+using System;
 using CineMarco.EventSourcing.Csharp9.Tests.Utils;
 using CineMarco.EventSourcing.Csharp9.Tests.Utils.DataHelpers;
 using CineMarco.EventSourcing.Csharp9.Tests.Utils.Fixtures;
@@ -126,7 +127,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
         }
 
         [Fact]
-        public void Schedule_reservation_expiration_check()
+        public void Schedule_reservation_expiration_check_after_12_minutes()
         {
             Given(
                 screening.IsInitialized(Occurring.Tomorrow, Seats.Number("A", "B", "C")));
@@ -135,7 +136,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
                 screening.ReserveSeats("A", "B"));
 
             ThenExpectSchedule(
-                screening.CheckSeatsReservationExpiration("A", "B"));
+                screening.CheckSeatsReservationExpiration("A", "B"), TimeSpan.Parse("00:12:00"));
         }
     }
 }
