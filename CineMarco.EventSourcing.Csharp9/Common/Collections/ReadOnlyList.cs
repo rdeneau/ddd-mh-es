@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CineMarco.EventSourcing.Csharp9.Common
+namespace CineMarco.EventSourcing.Csharp9.Common.Collections
 {
     /// <summary>
     /// Read only list comparable by value
@@ -51,10 +51,5 @@ namespace CineMarco.EventSourcing.Csharp9.Common
             _items.ForEach(changeItem);
             return this;
         }
-    }
-
-    public static class ValueListExtensions
-    {
-        public static ReadOnlyList<T> ToReadOnlyList<T>(this IEnumerable<T> source) => new(source);
     }
 }

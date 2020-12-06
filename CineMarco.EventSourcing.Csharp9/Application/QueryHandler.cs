@@ -1,4 +1,4 @@
-using CineMarco.EventSourcing.Csharp9.Common;
+using CineMarco.EventSourcing.Csharp9.Common.Collections;
 using CineMarco.EventSourcing.Csharp9.ReadSide;
 
 namespace CineMarco.EventSourcing.Csharp9.Application
