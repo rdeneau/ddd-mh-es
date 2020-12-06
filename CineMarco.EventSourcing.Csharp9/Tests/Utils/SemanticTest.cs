@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CineMarco.EventSourcing.Csharp9.Application;
 using CineMarco.EventSourcing.Csharp9.Domain;
+using CineMarco.EventSourcing.Csharp9.ReadSide;
 using CineMarco.EventSourcing.Csharp9.Tests.Utils.Mocks;
 using Moq;
 using Shouldly;
@@ -32,23 +33,25 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
         private readonly FakeEventBus            _eventBus             = new();
         private readonly FakeEventStore          _eventStore           = new();
         private readonly Mock<ICommandScheduler> _commandSchedulerMock = new();
+        private readonly ReadModels              _readModels           = new();
 
-        private readonly DateTimeOffset _now = DateTimeOffset.UtcNow;
+        private readonly DateTimeOffset _timeStamp = DateTimeOffset.UtcNow;
 
         private IQueryResponse? _response;
 
-        protected bool IgnoreEventTimestamp { get; set; }
+        protected bool IgnoreEventTimestamp { get; set; } = true;
 
         private IEnumerable<IDomainEvent> PublishedEvents => _eventBus.Events;
 
         protected SemanticTest()
         {
-            IgnoreEventTimestamp = true;
+            _eventBus.OnEventPublished = _readModels.Project;
         }
 
         protected void Given(params IDomainEvent[] events)
         {
             _eventStore.Initialize(events);
+            _readModels.Aggregate(events);
         }
 
         protected void When(ICommand command)
@@ -59,7 +62,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
 
         protected void WhenQuery(IQuery query)
         {
-            var handler = new QueryHandler();
+            var handler = new QueryHandler(_readModels);
             _response = handler.Handle((dynamic) query);
         }
 
@@ -82,7 +85,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
 
         private IDomainEvent Sanitize(IDomainEvent @event) =>
             @event is AuditedEvent auditedEvent
-                ? auditedEvent with { At = _now }
+                ? auditedEvent with { At = _timeStamp }
                 : @event;
 
         protected void ThenExpect(IQueryResponse expectedResponse) =>

@@ -10,10 +10,6 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils.Fixtures
     {
         private ScreeningId ScreeningId { get; } = ScreeningId.Generate();
 
-        private DateTimeOffset ScreeningDate { get; set; }
-
-        private ReadOnlyList<SeatNumber> SeatNumbers { get; set; } = new();
-
         public ScreeningAvailableSeats AvailableSeats() =>
             new(ScreeningId);
 
@@ -21,10 +17,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils.Fixtures
             new(ScreeningId, SeatsWith(seatNumbers));
 
         public ScreeningIsInitialized IsInitialized(DateTimeOffset screeningDate, ReadOnlyList<SeatNumber> seatNumbers) =>
-            new(
-                ScreeningId,
-                ScreeningDate = screeningDate,
-                SeatNumbers   = seatNumbers);
+            new(ScreeningId, screeningDate, seatNumbers);
 
         public SeatsAreReserved HasSeatsReserved(params string[] seatNumbers) =>
             new(ScreeningId, SeatsWith(seatNumbers));

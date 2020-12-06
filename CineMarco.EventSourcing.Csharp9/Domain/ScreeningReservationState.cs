@@ -16,11 +16,15 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
         public ScreeningReservationState(IEnumerable<IDomainEvent> history)
         {
             foreach (dynamic @event in history)
+            {
                 Apply(@event); // ⚠ Dynamic dispatch
+            }
         }
 
-        // Fallback "Apply" method, compulsory to secure the previous dynamic dispatch
-        // ReSharper disable once UnusedParameter.Local
+        /// <summary>
+        /// Fallback "Apply" method, compulsory to secure the dynamic dispatch in the constructor
+        /// </summary>
+        // ReSharper disable once UnusedParameter.Local // `_` argument
         private void Apply(IDomainEvent _) { }
 
         private void Apply(ScreeningIsInitialized @event)
