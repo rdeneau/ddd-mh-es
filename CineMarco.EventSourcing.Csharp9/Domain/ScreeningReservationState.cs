@@ -1,56 +1,45 @@
 using System;
 using System.Collections.Generic;
+using CineMarco.EventSourcing.Csharp9.Common;
+using CineMarco.EventSourcing.Csharp9.Common.Collections;
 
 namespace CineMarco.EventSourcing.Csharp9.Domain
 {
-    public class ScreeningReservationState
+    public class ScreeningReservationState : IStateFrom<ScreeningIsInitialized>,
+                                             IStateFrom<SeatsAreReserved>,
+                                             IStateFrom<SeatReservationHasExpired>
     {
         public ScreeningId Id { get; private set; } = ScreeningId.Undefined;
 
-        public DateTimeOffset Date { get; private set; }
+        public DateTimeOffset Date { get; private set; } = ClockUtc.Now;
 
         private Dictionary<SeatNumber, Seat> SeatMap { get; } = new();
 
         public IEnumerable<Seat> Seats => SeatMap.Values;
 
-        public ScreeningReservationState(IEnumerable<IDomainEvent> history)
-        {
-            foreach (dynamic @event in history)
-            {
-                Apply(@event); // ⚠ Dynamic dispatch
-            }
-        }
+        public ScreeningReservationState(IEnumerable<IDomainEvent> history) =>
+            this.ReconstructFrom(history);
 
-        /// <summary>
-        /// Fallback "Apply" method, compulsory to secure the dynamic dispatch in the constructor
-        /// </summary>
-        // ReSharper disable once UnusedParameter.Local // `_` argument
-        private void Apply(IDomainEvent _) { }
-
-        private void Apply(ScreeningIsInitialized @event)
+        public void Apply(ScreeningIsInitialized @event)
         {
             (Id, Date, _) = @event;
-            foreach (var seatNumber in @event.Seats)
+            @event.Seats.ForEach(seatNumber =>
             {
                 SeatMap.Add(seatNumber, seatNumber.ToSeat());
-            }
+            });
         }
 
-        private void Apply(SeatsAreReserved @event)
-        {
-            foreach (var seatNumber in @event.Seats)
+        public void Apply(SeatsAreReserved @event) =>
+            @event.Seats.ForEach(seatNumber =>
             {
                 SeatMap[seatNumber] = SeatMap[seatNumber].Reserve(@event.At);
-            }
-        }
+            });
 
-        private void Apply(SeatReservationHasExpired @event)
-        {
-            foreach (var seatNumber in @event.Seats)
+        public void Apply(SeatReservationHasExpired @event) =>
+            @event.Seats.ForEach(seatNumber =>
             {
                 SeatMap[seatNumber] = SeatMap[seatNumber].RemoveReservation();
-            }
-        }
+            });
 
         public Seat? Seat(SeatNumber seatNumber) =>
             SeatMap.TryGetValue(seatNumber, out var seat)
