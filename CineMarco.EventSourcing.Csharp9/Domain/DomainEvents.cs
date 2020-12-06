@@ -8,7 +8,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
     /// Naming convention: start with verb in the past tense
     /// E.g. "SeatsAreReserved"
     /// </summary>
-    public interface IDomainEvent : IMarkerInterface { }
+    public interface IDomainEvent { }
 
     public record AuditedEvent(DateTimeOffset At) : IDomainEvent
     {
