@@ -1,5 +1,5 @@
-using System.Collections.Generic;
-using CineMarco.EventSourcing.Csharp9.Domain;
+using CineMarco.EventSourcing.Csharp9.Common;
+using CineMarco.EventSourcing.Csharp9.ReadSide;
 
 namespace CineMarco.EventSourcing.Csharp9.Application
 {
@@ -12,9 +12,16 @@ namespace CineMarco.EventSourcing.Csharp9.Application
 
     public class QueryHandler : IQueryHandler<ScreeningAvailableSeats, ScreeningAvailableSeatsResponse>
     {
-        public ScreeningAvailableSeatsResponse Handle(ScreeningAvailableSeats query)
+        private readonly ReadModels _readModels;
+
+        public QueryHandler(ReadModels readModels)
         {
-            return new(ScreeningId.Undefined, new List<SeatNumber>());
+            _readModels = readModels;
         }
+
+        public ScreeningAvailableSeatsResponse Handle(ScreeningAvailableSeats query) =>
+            _readModels.ScreeningInfos.TryGetValue(query.ScreeningId, out var reservation)
+                ? new(query.ScreeningId, reservation.AvailableSeats.ToReadOnlyList())
+                : new(query.ScreeningId, Status: QueryResponseStatus.NotFound);
     }
 }

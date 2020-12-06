@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using CineMarco.EventSourcing.Csharp9.Common;
 using CineMarco.EventSourcing.Csharp9.Domain;
 
@@ -10,6 +9,7 @@ namespace CineMarco.EventSourcing.Csharp9.Application
     /// </summary>
     public interface IQuery : IMarkerInterface { }
 
+    // ReSharper disable once UnusedTypeParameter
     public interface IQuery<TResponse> : IQuery where TResponse: IQueryResponse { }
 
     /// <summary>
@@ -17,7 +17,17 @@ namespace CineMarco.EventSourcing.Csharp9.Application
     /// </summary>
     public interface IQueryResponse : IMarkerInterface { }
 
+    public enum QueryResponseStatus
+    {
+        Ok,
+        NotFound,
+    }
+
     public sealed record ScreeningAvailableSeats(ScreeningId ScreeningId) : IQuery<ScreeningAvailableSeatsResponse>;
 
-    public sealed record ScreeningAvailableSeatsResponse(ScreeningId ScreeningId, IReadOnlyList<SeatNumber> Seats) : IQueryResponse { }
+    public sealed record ScreeningAvailableSeatsResponse(
+        ScreeningId               ScreeningId,
+        ReadOnlyList<SeatNumber>? Seats  = null,
+        QueryResponseStatus       Status = QueryResponseStatus.Ok
+    ) : IQueryResponse { }
 }

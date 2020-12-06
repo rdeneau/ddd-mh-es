@@ -3,11 +3,18 @@ using CineMarco.EventSourcing.Csharp9.Common;
 
 namespace CineMarco.EventSourcing.Csharp9.Domain
 {
-    public sealed record SeatNumber(string Value)
+    public sealed record SeatNumber(string Value) : IComparable<SeatNumber>
     {
         public Seat ToSeat() => new(this);
 
         public override string ToString() => Value;
+
+        public int CompareTo(SeatNumber? other)
+        {
+            if (ReferenceEquals(this, other)) return 0;
+            if (ReferenceEquals(null, other)) return 1;
+            return string.Compare(Value, other.Value, StringComparison.Ordinal);
+        }
     }
 
     public sealed record Seat(SeatNumber Number, DateTimeOffset? ReservationDate = null)
