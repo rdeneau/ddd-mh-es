@@ -3,39 +3,29 @@ using CineMarco.EventSourcing.Csharp9.Common;
 
 namespace CineMarco.EventSourcing.Csharp9.Domain
 {
-    public sealed record SeatNumber(string Value) : IComparable<SeatNumber>
+    public interface ISeat
     {
-        public Seat ToSeat() => new(this);
-
-        public override string ToString() => Value;
-
-        public int CompareTo(SeatNumber? other)
-        {
-            if (ReferenceEquals(this, other)) return 0;
-            if (ReferenceEquals(null, other)) return 1;
-            return string.Compare(Value, other.Value, StringComparison.Ordinal);
-        }
+        SeatNumber Number { get; }
     }
 
-    public sealed record Seat(SeatNumber Number, DateTimeOffset? ReservationDate = null)
+    public record AvailableSeat(SeatNumber Number) : ISeat
+    {
+        public ReservedSeat Reserve(DateTimeOffset at, ClientId @for) =>
+            new(Number, at, @for);
+
+        public override string ToString() =>
+            $"Seat #{Number.Value}";
+    }
+
+    public record ReservedSeat(SeatNumber Number, DateTimeOffset ReservationDate, ClientId ClientId) : ISeat
     {
         public bool HasReservationExpired(TimeSpan expirationDelay) =>
             ReservationDate <= ClockUtc.Now.Add(-expirationDelay);
 
-        public bool IsReserved => ReservationDate.HasValue;
-
-        public Seat Reserve(DateTimeOffset at) =>
-            this with { ReservationDate = at };
-
-        public Seat RemoveReservation() =>
-            this with { ReservationDate = null };
+        public AvailableSeat RemoveReservation() =>
+            new(Number);
 
         public override string ToString() =>
-            $"Seat #{Number.Value}{ReservationInfo}";
-
-        private string ReservationInfo =>
-            ReservationDate.HasValue
-                ? $", Reserved @ {ReservationDate.Value}"
-                : "";
+            $"Seat #{Number.Value} Reserved @ {ReservationDate} by {ClientId}";
     }
 }

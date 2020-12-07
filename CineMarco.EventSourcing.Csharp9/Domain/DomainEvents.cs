@@ -24,6 +24,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
     public interface IScreeningReservationEvent : IDomainEvent { }
 
     public sealed record SeatsAreReserved(
+        ClientId                  ClientId,
         ScreeningId               ScreeningId,
         IReadOnlyList<SeatNumber> Seats
     ) : AuditedEvent, IScreeningReservationEvent;
@@ -36,14 +37,16 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
     }
 
     public sealed record SeatsReservationFailed(
+        ClientId                  ClientId,
         ScreeningId               ScreeningId,
         IReadOnlyList<SeatNumber> Seats,
         ReservationFailure        Reason = ReservationFailure.NotEnoughSeatsAvailable
     ) : AuditedEvent, IScreeningReservationEvent;
 
     public sealed record SeatsBulkReservationFailed(
-        ScreeningId ScreeningId,
-        int NumberOfSeats,
+        ClientId           ClientId,
+        ScreeningId        ScreeningId,
+        int                NumberOfSeats,
         ReservationFailure Reason = ReservationFailure.NotEnoughSeatsAvailable
     ) : AuditedEvent, IScreeningReservationEvent;
 

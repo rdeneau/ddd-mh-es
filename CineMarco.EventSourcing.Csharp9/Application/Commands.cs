@@ -9,9 +9,20 @@ namespace CineMarco.EventSourcing.Csharp9.Application
     /// </summary>
     public interface ICommand { }
 
-    public sealed record CheckSeatsReservationExpiration(ScreeningId ScreeningId, IReadOnlyList<SeatNumber> Seats) : ICommand;
+    public sealed record CheckSeatsReservationExpiration(
+        ScreeningId               ScreeningId,
+        IReadOnlyList<SeatNumber> Seats
+    ) : ICommand;
 
-    public sealed record ReserveSeats(ScreeningId ScreeningId, IReadOnlyList<SeatNumber> Seats) : ICommand;
+    public sealed record ReserveSeats(
+        ClientId                  ClientId,
+        ScreeningId               ScreeningId,
+        IReadOnlyList<SeatNumber> Seats
+    ) : ICommand;
 
-    public sealed record ReserveSeatsInBulk(ScreeningId ScreeningId, NumberOfSeats Seats) : ICommand;
+    public sealed record ReserveSeatsInBulk(
+        ClientId      ClientId,
+        ScreeningId   ScreeningId,
+        NumberOfSeats Seats
+    ) : ICommand;
 }

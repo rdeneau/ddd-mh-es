@@ -9,6 +9,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 {
     public class ScreeningReservation
     {
+        public static readonly TimeSpan ClosingDelay    = new(hours: 0, minutes: 15, seconds: 0);
         public static readonly TimeSpan ExpirationDelay = new(hours: 0, minutes: 12, seconds: 0);
 
         private readonly ScreeningReservationState _state;
@@ -32,38 +33,38 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
         private IEnumerable<SeatNumber> SeatsWithReservationExpired(IEnumerable<SeatNumber> seats) =>
             from   seatNumber in seats
-            let    seat = _state.Seat(seatNumber)
+            let    seat = _state.Seat(seatNumber) as ReservedSeat
             where  seat?.HasReservationExpired(ExpirationDelay) == true
             select seatNumber;
 
-        public IScreeningReservationEvent ReserveSeats(IReadOnlyList<SeatNumber> seats) =>
-            ReserveSeatsEvent(seats)
+        public IScreeningReservationEvent Reserve(IReadOnlyList<SeatNumber> seats, ClientId @for) =>
+            ReserveEvent(seats, @for)
                 .PublishedTo(_eventBus);
 
-        private IScreeningReservationEvent ReserveSeatsEvent(IReadOnlyList<SeatNumber> seats)
+        private IScreeningReservationEvent ReserveEvent(IReadOnlyList<SeatNumber> seats, ClientId clientId)
         {
             if (IsTooClosedToScreeningTime())
-                return new SeatsReservationFailed(_state.Id, seats, ReservationFailure.TooClosedToScreeningTime);
+                return new SeatsReservationFailed(clientId, _state.Id, seats, ReservationFailure.TooClosedToScreeningTime);
 
             var seatsToReserved = AvailableSeats().Intersect(seats).ToReadOnlyList();
             if (seatsToReserved.Count == seats.Count)
-                return new SeatsAreReserved(_state.Id, seatsToReserved);
+                return new SeatsAreReserved(clientId, _state.Id, seatsToReserved);
 
             if (seats.Except(AllSeats()).Any())
-                return new SeatsReservationFailed(_state.Id, seats, ReservationFailure.SomeSeatsAreUnknown);
+                return new SeatsReservationFailed(clientId, _state.Id, seats, ReservationFailure.SomeSeatsAreUnknown);
 
             else
-                return new SeatsReservationFailed(_state.Id, seats);
+                return new SeatsReservationFailed(clientId, _state.Id, seats);
         }
 
         private bool IsTooClosedToScreeningTime() =>
-            ClockUtc.Now > _state.Date.AddMinutes(-15);
+            ClockUtc.Now > _state.Date.Add(-ClosingDelay);
 
-        public IScreeningReservationEvent ReserveSeatsInBulk(NumberOfSeats count) =>
-            ReserveSeatsInBulkEvent(count)
+        public IScreeningReservationEvent ReserveSeatsInBulk(NumberOfSeats count, ClientId clientId) =>
+            ReserveSeatsInBulkEvent(count, clientId)
                 .PublishedTo(_eventBus);
 
-        private IScreeningReservationEvent ReserveSeatsInBulkEvent(NumberOfSeats count)
+        private IScreeningReservationEvent ReserveSeatsInBulkEvent(NumberOfSeats count, ClientId clientId)
         {
             var numberOfSeats = count.Value;
             var seatsToReserved = AvailableSeats()
@@ -71,9 +72,9 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
                                   .ToReadOnlyList();
 
             if (seatsToReserved.Count < numberOfSeats)
-                return new SeatsBulkReservationFailed(_state.Id, numberOfSeats);
+                return new SeatsBulkReservationFailed(clientId, _state.Id, numberOfSeats);
             else
-                return new SeatsAreReserved(_state.Id, seatsToReserved);
+                return new SeatsAreReserved(clientId, _state.Id, seatsToReserved);
         }
 
         private IEnumerable<SeatNumber> AllSeats() =>
@@ -82,7 +83,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
         private IEnumerable<SeatNumber> AvailableSeats() =>
             _state.Seats
-                  .Where(x => !x.IsReserved)
+                  .Where(x => x is AvailableSeat)
                   .Select(x => x.Number);
     }
 }

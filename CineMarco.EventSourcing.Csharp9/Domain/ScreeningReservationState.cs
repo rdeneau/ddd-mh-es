@@ -9,13 +9,13 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
                                              IStateFrom<SeatsAreReserved>,
                                              IStateFrom<SeatReservationHasExpired>
     {
-        public ScreeningId Id { get; private set; } = ScreeningId.Undefined;
+        public ScreeningId Id { get; private set; } = new();
 
         public DateTimeOffset Date { get; private set; } = ClockUtc.Now;
 
-        private Dictionary<SeatNumber, Seat> SeatMap { get; } = new();
+        private Dictionary<SeatNumber, ISeat> SeatMap { get; } = new();
 
-        public IEnumerable<Seat> Seats => SeatMap.Values;
+        public IEnumerable<ISeat> Seats => SeatMap.Values;
 
         public ScreeningReservationState(IEnumerable<IDomainEvent> history) =>
             this.ReconstructFrom(history);
@@ -25,23 +25,25 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
             (Id, Date, _) = @event;
             @event.Seats.ForEach(seatNumber =>
             {
-                SeatMap.Add(seatNumber, seatNumber.ToSeat());
+                SeatMap.Add(seatNumber, seatNumber.ToAvailableSeat());
             });
         }
 
         public void Apply(SeatsAreReserved @event) =>
             @event.Seats.ForEach(seatNumber =>
             {
-                SeatMap[seatNumber] = SeatMap[seatNumber].Reserve(@event.At);
+                var seat = (AvailableSeat) SeatMap[seatNumber];
+                SeatMap[seatNumber] = seat.Reserve(@event.At, @event.ClientId);
             });
 
         public void Apply(SeatReservationHasExpired @event) =>
             @event.Seats.ForEach(seatNumber =>
             {
-                SeatMap[seatNumber] = SeatMap[seatNumber].RemoveReservation();
+                var seat = (ReservedSeat) SeatMap[seatNumber];
+                SeatMap[seatNumber] = seat.RemoveReservation();
             });
 
-        public Seat? Seat(SeatNumber seatNumber) =>
+        public ISeat? Seat(SeatNumber seatNumber) =>
             SeatMap.TryGetValue(seatNumber, out var seat)
                 ? seat
                 : null;
