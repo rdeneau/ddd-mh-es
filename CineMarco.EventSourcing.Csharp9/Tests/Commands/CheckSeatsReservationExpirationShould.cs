@@ -15,7 +15,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
         public void Remove_reservation_expired_after(int minutesAgo)
         {
             Given(
-                screening.IsInitialized(Occurring.Tomorrow, Seats.Number("A", "B")),
+                screening.IsInitialized(Seats.Number("A", "B")),
                 screening.HasSeatsReserved("A") with { At = Occurring.Sooner(minutesAgo) });
 
             When(
@@ -29,7 +29,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
         public void Remove_reservation_expired_only_for_given_seats()
         {
             Given(
-                screening.IsInitialized(Occurring.Tomorrow, Seats.Number("A", "B")),
+                screening.IsInitialized(Seats.Number("A", "B")),
                 screening.HasSeatsReserved("A") with { At = Occurring.Sooner(minutesAgo: 15) },
                 screening.HasSeatsReserved("B") with { At = Occurring.Sooner(minutesAgo: 10) });
 

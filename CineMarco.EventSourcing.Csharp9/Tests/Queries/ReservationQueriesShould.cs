@@ -13,7 +13,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
         public void Indicate_available_seats_after_initialisation()
         {
             Given(
-                screening.IsInitialized(Occurring.Tomorrow, Seats.Number("A", "B", "C", "D")));
+                screening.IsInitialized(Seats.Number("A", "B", "C", "D")));
 
             WhenQuery(
                 screening.AvailableSeats());
@@ -26,7 +26,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
         public void Indicate_available_seats_after_reservation()
         {
             Given(
-                screening.IsInitialized(Occurring.Tomorrow, Seats.Number("A", "B", "C", "D")),
+                screening.IsInitialized(Seats.Number("A", "B", "C", "D")),
                 screening.HasSeatsReserved("A", "B"));
 
             WhenQuery(
@@ -40,7 +40,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
         public void Indicate_available_seats_after_reservation_expired()
         {
             Given(
-                screening.IsInitialized(Occurring.Tomorrow, Seats.Number("A", "B", "C", "D")),
+                screening.IsInitialized(Seats.Number("A", "B", "C", "D")),
                 screening.HasSeatsReserved("A"),
                 screening.HasSeatsReserved("B"),
                 screening.HasSeatsReservationExpired("A"));

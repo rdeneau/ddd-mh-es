@@ -16,8 +16,8 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils.Fixtures
         public ScreeningAvailableSeatsResponse AvailableSeatsResponse(params string[] seatNumbers) =>
             new(ScreeningId, SeatsWith(seatNumbers));
 
-        public ScreeningIsInitialized IsInitialized(DateTimeOffset screeningDate, ReadOnlyList<SeatNumber> seatNumbers) =>
-            new(ScreeningId, screeningDate, seatNumbers);
+        public ScreeningIsInitialized IsInitialized(ReadOnlyList<SeatNumber> seatNumbers, DateTimeOffset? screeningDate = null) =>
+            new(ScreeningId, screeningDate ?? Occurring.Tomorrow, seatNumbers);
 
         public SeatsAreReserved HasSeatsReserved(params string[] seatNumbers) =>
             new(ScreeningId, SeatsWith(seatNumbers));
