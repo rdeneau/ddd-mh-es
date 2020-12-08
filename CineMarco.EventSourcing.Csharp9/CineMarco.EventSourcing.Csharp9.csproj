@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <Folder Include="Tests\Scenarios" />
+    <Folder Include="Tests\Utils\Fixtures" />
   </ItemGroup>
 
 </Project>

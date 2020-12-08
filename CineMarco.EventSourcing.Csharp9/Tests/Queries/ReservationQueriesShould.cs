@@ -1,55 +1,71 @@
+using CineMarco.EventSourcing.Csharp9.Application;
+using CineMarco.EventSourcing.Csharp9.Domain;
 using CineMarco.EventSourcing.Csharp9.Tests.Utils;
 using CineMarco.EventSourcing.Csharp9.Tests.Utils.DataHelpers;
-using CineMarco.EventSourcing.Csharp9.Tests.Utils.Fixtures;
 using Xunit;
+using static CineMarco.EventSourcing.Csharp9.Tests.Utils.DataHelpers.Clients;
+using static CineMarco.EventSourcing.Csharp9.Tests.Utils.DataHelpers.Screenings;
+using static CineMarco.EventSourcing.Csharp9.Tests.Utils.DataHelpers.SeatNumbers;
 
 namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
 {
     public class ReservationQueriesShould : SemanticTest
     {
-        private readonly ScreeningReservationFixture screening = new();
-
         [Fact]
         public void Indicate_available_seats_after_initialisation()
         {
             Given(
-                screening.IsInitialized(Seats.Number("A", "B", "C", "D")));
+                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")));
 
             WhenQuery(
-                screening.AvailableSeats());
+                new ScreeningAvailableSeats(Screening1));
 
             ThenExpect(
-                screening.AvailableSeatsResponse("A", "B", "C", "D"));
+                new ScreeningAvailableSeatsResponse(Screening1, Seats("A", "B", "C", "D")));
         }
 
         [Fact]
         public void Indicate_available_seats_after_reservation()
         {
             Given(
-                screening.IsInitialized(Seats.Number("A", "B", "C", "D")),
-                screening.HasSeatsReserved("A", "B"));
+                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
+                new SeatsAreReserved(Client1, Screening1, Seats("A", "B")));
 
             WhenQuery(
-                screening.AvailableSeats());
+                new ScreeningAvailableSeats(Screening1));
 
             ThenExpect(
-                screening.AvailableSeatsResponse("C", "D"));
+                new ScreeningAvailableSeatsResponse(Screening1, Seats("C", "D")));
         }
 
         [Fact]
         public void Indicate_available_seats_after_reservation_expired()
         {
             Given(
-                screening.IsInitialized(Seats.Number("A", "B", "C", "D")),
-                screening.HasSeatsReserved("A"),
-                screening.HasSeatsReserved("B"),
-                screening.HasSeatsReservationExpired("A"));
+                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
+                new SeatsAreReserved(Client1, Screening1, Seats("A")),
+                new SeatsAreReserved(Client1, Screening1, Seats("B")),
+                new SeatReservationHasExpired(Screening1, Seats("A")));
 
             WhenQuery(
-                screening.AvailableSeats());
+                new ScreeningAvailableSeats(Screening1));
 
             ThenExpect(
-                screening.AvailableSeatsResponse("A", "C", "D"));
+                new ScreeningAvailableSeatsResponse(Screening1, Seats("A", "C", "D")));
+        }
+
+        [Fact]
+        public void Indicate_client_seats_reserved()
+        {
+            Given(
+                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
+                new SeatsAreReserved(Client2, Screening1, Seats("A", "C")));
+
+            WhenQuery(
+                new ClientSeatReservation(Client2, Screening1));
+
+            ThenExpect(
+                new ClientSeatReservationResponse(Client2, Screening1, Seats("A", "C")));
         }
     }
 }

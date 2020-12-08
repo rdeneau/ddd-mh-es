@@ -4,9 +4,9 @@ using CineMarco.EventSourcing.Csharp9.Domain;
 
 namespace CineMarco.EventSourcing.Csharp9.Tests.Utils.DataHelpers
 {
-    public static class Seats
+    public static class SeatNumbers
     {
-        public static ReadOnlyList<SeatNumber> Number(params string[] seatNumbers) =>
+        public static ReadOnlyList<SeatNumber> Seats(params string[] seatNumbers) =>
             seatNumbers.Select(i => new SeatNumber(i)).ToReadOnlyList();
     }
 }

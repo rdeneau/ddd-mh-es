@@ -1,80 +1,82 @@
+using CineMarco.EventSourcing.Csharp9.Application;
+using CineMarco.EventSourcing.Csharp9.Domain;
 using CineMarco.EventSourcing.Csharp9.Tests.Utils;
 using CineMarco.EventSourcing.Csharp9.Tests.Utils.DataHelpers;
-using CineMarco.EventSourcing.Csharp9.Tests.Utils.Fixtures;
 using Xunit;
+using static CineMarco.EventSourcing.Csharp9.Tests.Utils.DataHelpers.Clients;
+using static CineMarco.EventSourcing.Csharp9.Tests.Utils.DataHelpers.Screenings;
+using static CineMarco.EventSourcing.Csharp9.Tests.Utils.DataHelpers.SeatNumbers;
 
 namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
 {
     public class ReserveSeatsInBulkShould : SemanticTest
     {
-        private readonly ScreeningReservationFixture screening = new();
-
         [Fact]
         public void Reserve_first_seat()
         {
             Given(
-                screening.IsInitialized(Seats.Number("A", "B")));
+                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B")));
 
             When(
-                screening.ReserveSeatsInBulk(numberOfSeats: 1));
+                new ReserveSeatsInBulk(Client1, Screening1, new NumberOfSeats(1)));
 
             ThenExpect(
-                screening.HasSeatsReserved("A"));
+                new SeatsAreReserved(Client1, Screening1, Seats("A")));
         }
 
         [Fact]
         public void Reserve_second_seat()
         {
             Given(
-                screening.IsInitialized(Seats.Number("A", "B")),
-                screening.HasSeatsReserved("A"));
+                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B")),
+                new SeatsAreReserved(Client1, Screening1, Seats("A")));
 
             When(
-                screening.ReserveSeatsInBulk(numberOfSeats: 1));
+                new ReserveSeatsInBulk(Client1, Screening1, new NumberOfSeats(1)));
 
             ThenExpect(
-                screening.HasSeatsReserved("B"));
+                new SeatsAreReserved(Client1, Screening1, Seats("B")));
         }
 
         [Fact]
         public void Reserve_two_seats_given_two_seats_are_already_reserved()
         {
             Given(
-                screening.IsInitialized(Seats.Number("A", "B", "C", "D")),
-                screening.HasSeatsReserved("A", "C"));
+                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
+                new SeatsAreReserved(Client1, Screening1, Seats("A", "C")));
 
             When(
-                screening.ReserveSeatsInBulk(numberOfSeats: 2));
+                new ReserveSeatsInBulk(Client1, Screening1, new NumberOfSeats(2)));
 
             ThenExpect(
-                screening.HasSeatsReserved("B", "D"));
+                new SeatsAreReserved(Client1, Screening1, Seats("B", "D")));
         }
 
         [Fact]
         public void Fail_to_reserve_a_seat_not_available()
         {
             Given(
-                screening.IsInitialized(Seats.Number("A")),
-                screening.HasSeatsReserved("A"));
+                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A")),
+                new SeatsAreReserved(Client1, Screening1, Seats("A")));
 
             When(
-                screening.ReserveSeatsInBulk(numberOfSeats: 1));
+                new ReserveSeatsInBulk(Client1, Screening1, new NumberOfSeats(1)));
 
             ThenExpect(
-                screening.HasFailedToBulkReserveSeats(numberOfSeats: 1));
+                new SeatsBulkReservationFailed(Client1, Screening1, NumberOfSeats: 1));
         }
 
         [Fact]
         public void Fail_to_reserve_too_much_seat_for_the_screening()
         {
             Given(
-                screening.IsInitialized(Seats.Number("A")));
+                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A")));
 
             When(
-                screening.ReserveSeatsInBulk(numberOfSeats: 2));
+                new ReserveSeatsInBulk(Client1, Screening1, new NumberOfSeats(2)));
 
             ThenExpect(
-                screening.HasFailedToBulkReserveSeats(numberOfSeats: 2));
+                new SeatsBulkReservationFailed(Client1, Screening1, NumberOfSeats: 2));
         }
     }
 }
