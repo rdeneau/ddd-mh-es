@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using CineMarco.EventSourcing.Csharp9.Domain;
 
@@ -17,7 +18,8 @@ namespace CineMarco.EventSourcing.Csharp9.Application
     public sealed record ReserveSeats(
         ClientId                  ClientId,
         ScreeningId               ScreeningId,
-        IReadOnlyList<SeatNumber> Seats
+        IReadOnlyList<SeatNumber> Seats,
+        DateTimeOffset?           ReservationDate = null
     ) : ICommand;
 
     public sealed record ReserveSeatsInBulk(

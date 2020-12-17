@@ -37,18 +37,19 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
             where  seat?.HasReservationExpired(ExpirationDelay) == true
             select seatNumber;
 
-        public IScreeningReservationEvent Reserve(IReadOnlyList<SeatNumber> seats, ClientId @for) =>
-            ReserveEvent(seats, @for)
+        public IScreeningReservationEvent Reserve(IReadOnlyList<SeatNumber> seats, ClientId @for, DateTimeOffset? at) =>
+            ReserveEvent(seats, @for, at)
                 .PublishedTo(_eventBus);
 
-        private IScreeningReservationEvent ReserveEvent(IReadOnlyList<SeatNumber> seats, ClientId clientId)
+        private IScreeningReservationEvent ReserveEvent(IReadOnlyList<SeatNumber> seats, ClientId clientId, DateTimeOffset? at)
         {
             if (IsTooClosedToScreeningTime())
                 return new SeatsReservationFailed(clientId, _state.Id, seats, ReservationFailure.TooClosedToScreeningTime);
 
             var seatsToReserved = AvailableSeats().Intersect(seats).ToReadOnlyList();
             if (seatsToReserved.Count == seats.Count)
-                return new SeatsAreReserved(clientId, _state.Id, seatsToReserved);
+                return new SeatsAreReserved(clientId, _state.Id, seatsToReserved)
+                    .With(x => at.HasValue ? x with { At = at.Value } : x);
 
             if (seats.Except(AllSeats()).Any())
                 return new SeatsReservationFailed(clientId, _state.Id, seats, ReservationFailure.SomeSeatsAreUnknown);

@@ -39,7 +39,7 @@ namespace CineMarco.EventSourcing.Csharp9.Application
         private void HandleCore(ReserveSeats command)
         {
             var screeningReservation = ScreeningReservationById(command.ScreeningId);
-            var reservationEvent     = screeningReservation.Reserve(command.Seats, command.ClientId);
+            var reservationEvent     = screeningReservation.Reserve(command.Seats, command.ClientId, command.ReservationDate);
             ScheduleCheckSeatsReservationExpiration(reservationEvent);
         }
 

@@ -35,7 +35,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
         private readonly Mock<ICommandScheduler> _commandSchedulerMock = new();
         private readonly ReadModels              _readModels           = new();
 
-        private readonly DateTimeOffset _timeStamp = DateTimeOffset.UtcNow;
+        protected readonly DateTimeOffset TimeStamp = DateTimeOffset.UtcNow;
 
         private IQueryResponse? _response;
 
@@ -85,7 +85,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
 
         private IDomainEvent Sanitize(IDomainEvent @event) =>
             @event is AuditedEvent auditedEvent
-                ? auditedEvent with { At = _timeStamp }
+                ? auditedEvent with { At = TimeStamp }
                 : @event;
 
         protected void ThenExpect(IQueryResponse expectedResponse) =>

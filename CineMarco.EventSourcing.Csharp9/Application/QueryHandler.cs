@@ -4,7 +4,7 @@ using CineMarco.EventSourcing.Csharp9.ReadSide;
 
 namespace CineMarco.EventSourcing.Csharp9.Application
 {
-    public interface IQueryHandler<TQuery, TResponse>
+    public interface IQueryHandler<in TQuery, out TResponse>
         where TQuery    : IQuery<TResponse>
         where TResponse : IQueryResponse
     {
