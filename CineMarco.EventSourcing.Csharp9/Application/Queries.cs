@@ -15,35 +15,32 @@ namespace CineMarco.EventSourcing.Csharp9.Application
     public interface IQuery<TResponse> : IQuery where TResponse: IQueryResponse { }
 
     /// <summary>
-    /// Naming convention: name of the query + "Response" (or "Info")
+    /// Naming convention: name of the query + "Response"
     /// </summary>
     public interface IQueryResponse { }
-
-    // TODO: QueryResponse as Result type
-    public enum QueryResponseStatus
-    {
-        Ok,
-        NotFound,
-    }
 
     public sealed record ScreeningAvailableSeats(ScreeningId ScreeningId) : IQuery<ScreeningAvailableSeatsResponse>;
 
     public sealed record ScreeningAvailableSeatsResponse(
-        ScreeningId               ScreeningId,
-        ReadOnlyList<SeatNumber>? Seats  = null,
-        QueryResponseStatus       Status = QueryResponseStatus.Ok
-    ) : IQueryResponse { }
+        ScreeningId              ScreeningId,
+        ReadOnlyList<SeatNumber> Seats
+    ) : IQueryResponse
+    {
+        public static ScreeningAvailableSeatsResponse NotFound(ScreeningId screeningId) =>
+            new(screeningId, new ReadOnlyList<SeatNumber>());
+    }
 
     public sealed record ClientScreeningReservations(ClientId ClientId, ScreeningId ScreeningId) : IQuery<ClientScreeningReservationResponse>;
 
     public sealed record ClientScreeningReservationResponse(
-        ClientId                                 ClientId,
-        ScreeningId                              ScreeningId,
-        ReadOnlyList<ClientSeatReservationInfo>? Seats  = null,
-        QueryResponseStatus                      Status = QueryResponseStatus.Ok
-    ) : IQueryResponse { }
-
-
+        ClientId                                ClientId,
+        ScreeningId                             ScreeningId,
+        ReadOnlyList<ClientSeatReservationInfo> Seats
+    ) : IQueryResponse
+    {
+        public static ClientScreeningReservationResponse NotFound(ClientId    clientId, ScreeningId screeningId) =>
+            new(clientId, screeningId, new ReadOnlyList<ClientSeatReservationInfo>());
+    }
 
     public sealed record ClientSeatReservationInfo(
         SeatNumber        SeatNumber,

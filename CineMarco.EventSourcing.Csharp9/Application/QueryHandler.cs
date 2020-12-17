@@ -24,13 +24,13 @@ namespace CineMarco.EventSourcing.Csharp9.Application
         public ScreeningAvailableSeatsResponse Handle(ScreeningAvailableSeats query) =>
             _readModels.ScreeningInfos.TryGetValue(query.ScreeningId, out var reservation)
                 ? new(query.ScreeningId, reservation.AvailableSeats.ToReadOnlyList())
-                : new(query.ScreeningId, Status: QueryResponseStatus.NotFound);
+                : ScreeningAvailableSeatsResponse.NotFound(query.ScreeningId);
 
         public ClientScreeningReservationResponse Handle(ClientScreeningReservations query)
         {
             if (!_readModels.ClientReservationInfos.TryGetValue(query.ClientId, out var clientReservationInfo))
             {
-                return new(query.ClientId, query.ScreeningId, null, QueryResponseStatus.NotFound);
+                return ClientScreeningReservationResponse.NotFound(query.ClientId, query.ScreeningId);
             }
 
             var clientSeatReservationInfos = clientReservationInfo.Reservations.Select(
