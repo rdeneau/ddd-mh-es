@@ -33,8 +33,10 @@ namespace CineMarco.EventSourcing.Csharp9.Application
                 return ClientScreeningReservationResponse.NotFound(query.ClientId, query.ScreeningId);
             }
 
-            var clientSeatReservationInfos = clientReservationInfo.Reservations.Select(
-                x => new ClientSeatReservationInfo(x.SeatNumber, x.ReservationDate, x.ReservationStatus));
+            var clientSeatReservationInfos =
+                clientReservationInfo.Reservations
+                                     .Where(x => x.ScreeningId == query.ScreeningId)
+                                     .Select(x => new ClientSeatReservationInfo(x.SeatNumber, x.ReservationDate, x.ReservationStatus));
             return new(query.ClientId, query.ScreeningId, clientSeatReservationInfos.ToReadOnlyList());
         }
     }

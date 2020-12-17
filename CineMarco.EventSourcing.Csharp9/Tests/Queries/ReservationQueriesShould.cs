@@ -28,6 +28,19 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
         }
 
         [Fact]
+        public void Indicate_screening_not_found()
+        {
+            Given(
+                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")));
+
+            WhenQuery(
+                new ScreeningAvailableSeats(Screening2));
+
+            ThenExpect(
+                ScreeningAvailableSeatsResponse.NotFound(Screening2));
+        }
+
+        [Fact]
         public void Indicate_available_seats_after_reservation()
         {
             Given(
@@ -71,6 +84,34 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
 
             ThenExpect(
                 new ClientScreeningReservationResponse(Client2, Screening1, Seats("B", "C").Reserved(at: _reservationDate)));
+        }
+
+        [Fact]
+        public void Indicate_client_no_reservation_for_other_screening()
+        {
+            Given(
+                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
+                new ScreeningIsInitialized(Screening2, Occurring.Tomorrow, Seats("X", "Y", "Z")),
+                new SeatsAreReserved(Client1, Screening1, Seats("A")));
+
+            WhenQuery(
+                new ClientScreeningReservations(Client1, Screening2));
+
+            ThenExpect(
+                ClientScreeningReservationResponse.NotFound(Client1, Screening2));
+        }
+
+        [Fact]
+        public void Indicate_client_no_reservation_at_all()
+        {
+            Given(
+                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")));
+
+            WhenQuery(
+                new ClientScreeningReservations(Client1, Screening1));
+
+            ThenExpect(
+                ClientScreeningReservationResponse.NotFound(Client1, Screening1));
         }
     }
 }
