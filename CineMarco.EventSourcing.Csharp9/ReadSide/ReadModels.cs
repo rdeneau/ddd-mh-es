@@ -7,6 +7,8 @@ namespace CineMarco.EventSourcing.Csharp9.ReadSide
 {
     public class ReadModels
     {
+        public ClientReservationInfos ClientReservationInfos { get; } = new();
+
         public ScreeningInfos ScreeningInfos { get; } = new();
 
         public void Aggregate(IEnumerable<IDomainEvent> history)

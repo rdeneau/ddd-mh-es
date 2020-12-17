@@ -1,5 +1,7 @@
+using System;
 using CineMarco.EventSourcing.Csharp9.Common.Collections;
 using CineMarco.EventSourcing.Csharp9.Domain;
+using CineMarco.EventSourcing.Csharp9.ReadSide.Models;
 
 namespace CineMarco.EventSourcing.Csharp9.Application
 {
@@ -17,6 +19,7 @@ namespace CineMarco.EventSourcing.Csharp9.Application
     /// </summary>
     public interface IQueryResponse { }
 
+    // TODO: QueryResponse as Result type
     public enum QueryResponseStatus
     {
         Ok,
@@ -30,4 +33,20 @@ namespace CineMarco.EventSourcing.Csharp9.Application
         ReadOnlyList<SeatNumber>? Seats  = null,
         QueryResponseStatus       Status = QueryResponseStatus.Ok
     ) : IQueryResponse { }
+
+    public sealed record ClientScreeningReservations(ClientId ClientId, ScreeningId ScreeningId) : IQuery<ClientScreeningReservationResponse>;
+
+    public sealed record ClientScreeningReservationResponse(
+        ClientId                                 ClientId,
+        ScreeningId                              ScreeningId,
+        ReadOnlyList<ClientSeatReservationInfo>? Seats  = null,
+        QueryResponseStatus                      Status = QueryResponseStatus.Ok
+    ) : IQueryResponse { }
+
+
+
+    public sealed record ClientSeatReservationInfo(
+        SeatNumber        SeatNumber,
+        DateTimeOffset    ReservationDate,
+        ReservationStatus ReservationStatus);
 }

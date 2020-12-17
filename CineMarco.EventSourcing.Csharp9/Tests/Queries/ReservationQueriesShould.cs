@@ -1,3 +1,4 @@
+using System;
 using CineMarco.EventSourcing.Csharp9.Application;
 using CineMarco.EventSourcing.Csharp9.Domain;
 using CineMarco.EventSourcing.Csharp9.Tests.Utils;
@@ -11,6 +12,8 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
 {
     public class ReservationQueriesShould : SemanticTest
     {
+        private readonly DateTimeOffset _reservationDate = Occurring.Sooner(minutesAgo: 15);
+
         [Fact]
         public void Indicate_available_seats_after_initialisation()
         {
@@ -44,7 +47,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
             Given(
                 new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
                 new SeatsAreReserved(Client1, Screening1, Seats("A")),
-                new SeatsAreReserved(Client1, Screening1, Seats("B")),
+                new SeatsAreReserved(Client2, Screening1, Seats("B")),
                 new SeatReservationHasExpired(Screening1, Seats("A")));
 
             WhenQuery(
@@ -59,13 +62,15 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
         {
             Given(
                 new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
-                new SeatsAreReserved(Client2, Screening1, Seats("A", "C")));
+                new SeatsAreReserved(Client1, Screening1, Seats("A")),
+                new SeatsAreReserved(Client2, Screening1, Seats("B", "C")) { At = _reservationDate },
+                new SeatsAreReserved(Client3, Screening1, Seats("D")));
 
             WhenQuery(
-                new ClientSeatReservation(Client2, Screening1));
+                new ClientScreeningReservations(Client2, Screening1));
 
             ThenExpect(
-                new ClientSeatReservationResponse(Client2, Screening1, Seats("A", "C")));
+                new ClientScreeningReservationResponse(Client2, Screening1, Seats("B", "C").Reserved(at: _reservationDate)));
         }
     }
 }
