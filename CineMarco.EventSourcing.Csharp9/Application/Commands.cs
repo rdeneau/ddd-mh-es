@@ -33,4 +33,10 @@ namespace CineMarco.EventSourcing.Csharp9.Application
         ScreeningId   ScreeningId,
         NumberOfSeats Seats
     ) : AuditedCommand;
+
+    public sealed record BookSeats(
+        ClientId                  ClientId,
+        ScreeningId               ScreeningId,
+        IReadOnlyList<SeatNumber> Seats
+    ) : AuditedCommand;
 }

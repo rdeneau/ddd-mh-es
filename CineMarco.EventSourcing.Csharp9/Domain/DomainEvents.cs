@@ -55,4 +55,10 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
         ScreeningId               ScreeningId,
         IReadOnlyList<SeatNumber> Seats
     ) : AuditedEvent, IScreeningReservationEvent;
+
+    public sealed record SeatsAreBooked(
+        ClientId                  ClientId,
+        ScreeningId               ScreeningId,
+        IReadOnlyList<SeatNumber> Seats
+    ) : AuditedEvent, IScreeningReservationEvent;
 }

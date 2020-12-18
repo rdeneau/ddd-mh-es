@@ -38,7 +38,7 @@ namespace CineMarco.EventSourcing.Csharp9.Application
         ReadOnlyList<ClientSeatReservationInfo> Seats
     ) : IQueryResponse
     {
-        public static ClientScreeningReservationResponse NotFound(ClientId    clientId, ScreeningId screeningId) =>
+        public static ClientScreeningReservationResponse NotFound(ClientId clientId, ScreeningId screeningId) =>
             new(clientId, screeningId, new ReadOnlyList<ClientSeatReservationInfo>());
     }
 
