@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CineMarco.EventSourcing.Csharp9.Common;
 using CineMarco.EventSourcing.Csharp9.Domain;
 
 namespace CineMarco.EventSourcing.Csharp9.Application
@@ -10,21 +11,25 @@ namespace CineMarco.EventSourcing.Csharp9.Application
     /// </summary>
     public interface ICommand { }
 
+    public record AuditedCommand(DateTimeOffset At) : ICommand
+    {
+        protected AuditedCommand() : this(ClockUtc.Now) { }
+    }
+
     public sealed record CheckSeatsReservationExpiration(
         ScreeningId               ScreeningId,
         IReadOnlyList<SeatNumber> Seats
-    ) : ICommand;
+    ) : AuditedCommand;
 
     public sealed record ReserveSeats(
         ClientId                  ClientId,
         ScreeningId               ScreeningId,
-        IReadOnlyList<SeatNumber> Seats,
-        DateTimeOffset?           ReservationDate = null
-    ) : ICommand;
+        IReadOnlyList<SeatNumber> Seats
+    ) : AuditedCommand;
 
     public sealed record ReserveSeatsInBulk(
         ClientId      ClientId,
         ScreeningId   ScreeningId,
         NumberOfSeats Seats
-    ) : ICommand;
+    ) : AuditedCommand;
 }

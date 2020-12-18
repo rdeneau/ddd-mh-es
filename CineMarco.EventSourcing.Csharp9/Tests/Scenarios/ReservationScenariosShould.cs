@@ -18,13 +18,13 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Scenarios
                 new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")));
 
             When(
-                new ReserveSeats(Client1, Screening1, Seats("B", "C"), TimeStamp));
+                new ReserveSeats(Client1, Screening1, Seats("B", "C")) { At = FixedTimeStamp });
 
             WhenQuery(
                 new ClientScreeningReservations(Client1, Screening1));
 
             ThenExpect(
-                new ClientScreeningReservationResponse(Client1, Screening1, Seats("B", "C").Reserved(at: TimeStamp)));
+                new ClientScreeningReservationResponse(Client1, Screening1, Seats("B", "C").Reserved(at: FixedTimeStamp)));
         }
     }
 }

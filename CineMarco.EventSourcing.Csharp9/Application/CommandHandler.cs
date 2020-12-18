@@ -39,7 +39,7 @@ namespace CineMarco.EventSourcing.Csharp9.Application
         private void HandleCore(ReserveSeats command)
         {
             var screeningReservation = ScreeningReservationById(command.ScreeningId);
-            var reservationEvent     = screeningReservation.Reserve(command.Seats, command.ClientId, command.ReservationDate);
+            var reservationEvent     = screeningReservation.Reserve(command.Seats, command.ClientId, command.At);
             ScheduleCheckSeatsReservationExpiration(reservationEvent);
         }
 
@@ -54,7 +54,7 @@ namespace CineMarco.EventSourcing.Csharp9.Application
         {
             if (reservationEvent is SeatsAreReserved seatsAreReserved)
             {
-                var command = new CheckSeatsReservationExpiration(seatsAreReserved.ScreeningId, seatsAreReserved.Seats);
+                var command = new CheckSeatsReservationExpiration(seatsAreReserved.ScreeningId, seatsAreReserved.Seats) { At = seatsAreReserved.At};
                 _commandScheduler.Schedule(command, after: ScreeningReservation.ExpirationDelay);
             }
         }

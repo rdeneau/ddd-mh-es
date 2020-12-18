@@ -18,7 +18,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
     /// <item><description><see cref="Given(IDomainEvent[])"/></description></item>
     /// <item><description><see cref="When(ICommand)"/></description></item>
     /// <item><description><see cref="ThenExpect(IDomainEvent[])"/> or</description></item>
-    /// <item><description><see cref="ThenExpectSchedule(ICommand, TimeSpan?)"/></description></item>
+    /// <item><description><see cref="ThenExpectSchedule{TCommand}(TCommand, TimeSpan?)"/></description></item>
     /// </list>
     ///
     /// <para>For Queries:</para>
@@ -35,7 +35,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
         private readonly Mock<ICommandScheduler> _commandSchedulerMock = new();
         private readonly ReadModels              _readModels           = new();
 
-        protected readonly DateTimeOffset TimeStamp = DateTimeOffset.UtcNow;
+        protected readonly DateTimeOffset FixedTimeStamp = DateTimeOffset.UtcNow;
 
         private IQueryResponse? _response;
 
@@ -85,13 +85,22 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
 
         private IDomainEvent Sanitize(IDomainEvent @event) =>
             @event is AuditedEvent auditedEvent
-                ? auditedEvent with { At = TimeStamp }
+                ? auditedEvent with { At = FixedTimeStamp }
                 : @event;
 
         protected void ThenExpect(IQueryResponse expectedResponse) =>
             _response.ShouldBe(expectedResponse);
 
-        protected void ThenExpectSchedule(ICommand command, TimeSpan? delay) =>
-            _commandSchedulerMock.Verify(x => x.Schedule(command, delay ?? It.IsAny<TimeSpan>()));
+        protected void ThenExpectSchedule<TCommand>(TCommand command, TimeSpan? delay) where TCommand: ICommand =>
+            _commandSchedulerMock.Verify(
+                x => x.Schedule(
+                    It.Is<TCommand>(y => Verify(() => y.ShouldBe(command, ""))),
+                    It.Is<TimeSpan>(t => delay == null || Verify(() => t.ShouldBe(delay.Value, "")))));
+
+        private static bool Verify(Action assertion)
+        {
+            assertion();
+            return true;
+        }
     }
 }

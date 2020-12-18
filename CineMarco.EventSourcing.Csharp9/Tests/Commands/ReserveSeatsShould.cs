@@ -135,10 +135,11 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
                 new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C")));
 
             When(
-                new ReserveSeats(Client1, Screening1, Seats("A", "B")));
+                new ReserveSeats(Client1, Screening1, Seats("A", "B")) { At = FixedTimeStamp });
 
             ThenExpectSchedule(
-                new CheckSeatsReservationExpiration(Screening1, Seats("A", "B")), TimeSpan.Parse("00:12:00"));
+                new CheckSeatsReservationExpiration(Screening1, Seats("A", "B")) { At = FixedTimeStamp },
+                delay: TimeSpan.Parse("00:12:00"));
         }
     }
 }
