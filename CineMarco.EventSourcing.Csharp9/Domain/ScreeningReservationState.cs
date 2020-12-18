@@ -7,6 +7,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 {
     public class ScreeningReservationState : AggregateState,
                                              IStateFrom<ScreeningIsInitialized>,
+                                             IStateFrom<SeatsAreBooked>,
                                              IStateFrom<SeatsAreReserved>,
                                              IStateFrom<SeatReservationHasExpired>
     {
@@ -29,6 +30,13 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
                 SeatMap.Add(seatNumber, seatNumber.ToAvailableSeat());
             });
         }
+
+        public void Apply(SeatsAreBooked @event) =>
+            @event.Seats.ForEach(seatNumber =>
+            {
+                var seat = (ReservedSeat) SeatMap[seatNumber];
+                SeatMap[seatNumber] = seat.Book(@event.At, @event.ClientId);
+            });
 
         public void Apply(SeatsAreReserved @event) =>
             @event.Seats.ForEach(seatNumber =>

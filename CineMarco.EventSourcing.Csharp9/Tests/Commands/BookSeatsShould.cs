@@ -12,7 +12,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
     public class BookSeatsShould : SemanticTest
     {
         [Fact]
-        public void Book_reserved_seats_given_payment_succeeded()
+        public void Book_reserved_seats()
         {
             Given(
                 new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C")),
@@ -23,6 +23,34 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
 
             ThenExpect(
                 new SeatsAreBooked(Client1, Screening1, Seats("A", "B")));
+        }
+
+        [Fact]
+        public void Fail_to_book_seats_not_reserved()
+        {
+            Given(
+                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C")));
+
+            When(
+                new BookSeats(Client1, Screening1, Seats("A", "B")));
+
+            ThenExpect(
+                new SeatsBookingFailed(Client1, Screening1, Seats("A", "B")));
+        }
+
+        [Fact]
+        public void Fail_to_book_seats_already_booked()
+        {
+            Given(
+                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C")),
+                new SeatsAreReserved(Client1, Screening1, Seats("A", "B")),
+                new SeatsAreBooked(Client1, Screening1, Seats("A", "B")));
+
+            When(
+                new BookSeats(Client1, Screening1, Seats("A", "B")));
+
+            ThenExpect(
+                new SeatsBookingFailed(Client1, Screening1, Seats("A", "B")));
         }
     }
 }

@@ -30,6 +30,13 @@ namespace CineMarco.EventSourcing.Csharp9.Application
             throw new ArgumentException($"Not supported command {command.GetType().FullName}", nameof(command));
         }
 
+        private void HandleCore(BookSeats command)
+        {
+            var screeningReservation = ScreeningReservationById(command.ScreeningId);
+            var reservationEvent     = screeningReservation.Book(command.Seats, command.ClientId, command.At);
+            ScheduleCheckSeatsReservationExpiration(reservationEvent);
+        }
+
         private void HandleCore(CheckSeatsReservationExpiration command)
         {
             var screeningReservation = ScreeningReservationById(command.ScreeningId);

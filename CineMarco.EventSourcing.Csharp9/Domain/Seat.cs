@@ -10,7 +10,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
     public record AvailableSeat(SeatNumber Number) : ISeat
     {
-        public ReservedSeat Reserve(DateTimeOffset at, ClientId @for) =>
+        public ReservedSeat Reserve(in DateTimeOffset at, ClientId @for) =>
             new(Number, at, @for);
 
         public override string ToString() =>
@@ -19,6 +19,9 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
     public record ReservedSeat(SeatNumber Number, DateTimeOffset ReservationDate, ClientId ClientId) : ISeat
     {
+        public BookedSeat Book(in DateTimeOffset at, ClientId @by) =>
+            new(Number, at, @by);
+
         public bool HasReservationExpired(TimeSpan expirationDelay) =>
             ReservationDate <= ClockUtc.Now.Add(-expirationDelay);
 
@@ -27,5 +30,11 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
         public override string ToString() =>
             $"Seat #{Number.Value} Reserved @ {ReservationDate} by {ClientId}";
+    }
+
+    public record BookedSeat(SeatNumber Number, DateTimeOffset BookingDate, ClientId ClientId) : ISeat
+    {
+        public override string ToString() =>
+            $"Seat #{Number.Value} Booked @ {BookingDate} by {ClientId}";
     }
 }

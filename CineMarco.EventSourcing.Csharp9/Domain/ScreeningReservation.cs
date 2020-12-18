@@ -37,19 +37,32 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
             where  seat?.HasReservationExpired(ExpirationDelay) == true
             select seatNumber;
 
+        public IScreeningReservationEvent Book(IReadOnlyList<SeatNumber> seats, ClientId @for, DateTimeOffset? at) =>
+            BookEvent(seats, @for, at)
+                .PublishedTo(_eventBus);
+
+        private IScreeningReservationEvent BookEvent(IReadOnlyList<SeatNumber> seats, ClientId clientId, DateTimeOffset? date)
+        {
+            var seatsToBooked = ReservedSeats().Intersect(seats).ToReadOnlyList();
+            if (seatsToBooked.Count == seats.Count)
+                return new SeatsAreBooked(clientId, _state.Id, seats).At(date);
+
+            else
+                return new SeatsBookingFailed(clientId, _state.Id, seats);
+        }
+
         public IScreeningReservationEvent Reserve(IReadOnlyList<SeatNumber> seats, ClientId @for, DateTimeOffset? at) =>
             ReserveEvent(seats, @for, at)
                 .PublishedTo(_eventBus);
 
-        private IScreeningReservationEvent ReserveEvent(IReadOnlyList<SeatNumber> seats, ClientId clientId, DateTimeOffset? at)
+        private IScreeningReservationEvent ReserveEvent(IReadOnlyList<SeatNumber> seats, ClientId clientId, DateTimeOffset? date)
         {
             if (IsTooClosedToScreeningTime())
                 return new SeatsReservationFailed(clientId, _state.Id, seats, ReservationFailure.TooClosedToScreeningTime);
 
             var seatsToReserved = AvailableSeats().Intersect(seats).ToReadOnlyList();
             if (seatsToReserved.Count == seats.Count)
-                return new SeatsAreReserved(clientId, _state.Id, seatsToReserved)
-                    .With(x => at.HasValue ? x with { At = at.Value } : x);
+                return new SeatsAreReserved(clientId, _state.Id, seatsToReserved).At(date);
 
             if (seats.Except(AllSeats()).Any())
                 return new SeatsReservationFailed(clientId, _state.Id, seats, ReservationFailure.SomeSeatsAreUnknown);
@@ -78,13 +91,13 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
                 return new SeatsAreReserved(clientId, _state.Id, seatsToReserved);
         }
 
-        private IEnumerable<SeatNumber> AllSeats() =>
-            _state.Seats
-                  .Select(x => x.Number);
+        private IEnumerable<SeatNumber> AllSeats()       => SeatsBeing<ISeat>();
+        private IEnumerable<SeatNumber> AvailableSeats() => SeatsBeing<AvailableSeat>();
+        private IEnumerable<SeatNumber> ReservedSeats()  => SeatsBeing<ReservedSeat>();
 
-        private IEnumerable<SeatNumber> AvailableSeats() =>
+        private IEnumerable<SeatNumber> SeatsBeing<T>() where T: ISeat =>
             _state.Seats
-                  .Where(x => x is AvailableSeat)
+                  .Where(x => x is T)
                   .Select(x => x.Number);
     }
 }
