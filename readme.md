@@ -43,7 +43,7 @@ Tasks :
 
 - Build a read-model that supports the user with the required information. Write a test to ensure, given the past events, when a query is issued the expected response is delivered.
 - Write two tests to ensure each business rule from the scenario by only using the commands and events in your test.
-- Write an "integration" test that uses only commands and queries, no events to check the whole business behavior of the system. **(🚧 TODO)**
+- Write an "integration" test that uses only commands and queries, no events to check the whole business behavior of the system.
 - Bonus-behavior: If no booking happens within 12 minutes, the reservation is cancelled. Super duper bonus: Implement a way to send a notification
 
 ## Marco's solution
