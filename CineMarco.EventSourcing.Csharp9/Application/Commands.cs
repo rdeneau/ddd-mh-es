@@ -17,6 +17,7 @@ namespace CineMarco.EventSourcing.Csharp9.Application
     }
 
     public sealed record CheckSeatsReservationExpiration(
+        ClientId                  ClientId,
         ScreeningId               ScreeningId,
         IReadOnlyList<SeatNumber> Seats
     ) : AuditedCommand;

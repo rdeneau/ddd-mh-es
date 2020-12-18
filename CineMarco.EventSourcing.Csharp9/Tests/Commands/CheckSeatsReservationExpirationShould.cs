@@ -21,10 +21,10 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
                 new SeatsAreReserved(Client1, Screening1, Seats("A")) { At = Occurring.Sooner(minutesAgo) });
 
             When(
-                new CheckSeatsReservationExpiration(Screening1, Seats("A")));
+                new CheckSeatsReservationExpiration(Client1, Screening1, Seats("A")));
 
             ThenExpect(
-                new SeatReservationHasExpired(Screening1, Seats("A")));
+                new SeatReservationHasExpired(Client1, Screening1, Seats("A")));
         }
 
         [Fact]
@@ -36,10 +36,10 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
                 new SeatsAreReserved(Client1, Screening1, Seats("B")) { At = Occurring.Sooner(minutesAgo: 10) });
 
             When(
-                new CheckSeatsReservationExpiration(Screening1, Seats("A", "B")));
+                new CheckSeatsReservationExpiration(Client1, Screening1, Seats("A", "B")));
 
             ThenExpect(
-                new SeatReservationHasExpired(Screening1, Seats("A")));
+                new SeatReservationHasExpired(Client1, Screening1, Seats("A")));
         }
     }
 }

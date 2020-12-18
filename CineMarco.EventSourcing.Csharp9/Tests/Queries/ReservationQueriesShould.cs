@@ -12,7 +12,8 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
 {
     public class ReservationQueriesShould : SemanticTest
     {
-        private readonly DateTimeOffset _reservationDate = Occurring.Sooner(minutesAgo: 15);
+        private readonly DateTimeOffset _tenMinutesAgo     = Occurring.Sooner(minutesAgo: 10);
+        private readonly DateTimeOffset _fifteenMinutesAgo = Occurring.Sooner(minutesAgo: 15);
 
         [Fact]
         public void Indicate_available_seats_after_initialisation()
@@ -61,7 +62,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
                 new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
                 new SeatsAreReserved(Client1, Screening1, Seats("A")),
                 new SeatsAreReserved(Client2, Screening1, Seats("B")),
-                new SeatReservationHasExpired(Screening1, Seats("A")));
+                new SeatReservationHasExpired(Client1, Screening1, Seats("A")));
 
             WhenQuery(
                 new ScreeningAvailableSeats(Screening1));
@@ -71,19 +72,35 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
         }
 
         [Fact]
+        public void Indicate_client_seats_reservation_expired()
+        {
+            Given(
+                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
+                new SeatsAreReserved(Client1, Screening1, Seats("A")) { At = _fifteenMinutesAgo },
+                new SeatsAreReserved(Client1, Screening1, Seats("B")) { At = _tenMinutesAgo },
+                new SeatReservationHasExpired(Client1, Screening1, Seats("A")));
+
+            WhenQuery(
+                new ClientScreeningReservations(Client1, Screening1));
+
+            ThenExpect(
+                new ClientScreeningReservationResponse(Client1, Screening1, Seats("B").Reserved(_tenMinutesAgo)));
+        }
+
+        [Fact]
         public void Indicate_client_seats_reserved()
         {
             Given(
                 new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
                 new SeatsAreReserved(Client1, Screening1, Seats("A")),
-                new SeatsAreReserved(Client2, Screening1, Seats("B", "C")) { At = _reservationDate },
+                new SeatsAreReserved(Client2, Screening1, Seats("B", "C")) { At = _tenMinutesAgo },
                 new SeatsAreReserved(Client3, Screening1, Seats("D")));
 
             WhenQuery(
                 new ClientScreeningReservations(Client2, Screening1));
 
             ThenExpect(
-                new ClientScreeningReservationResponse(Client2, Screening1, Seats("B", "C").Reserved(at: _reservationDate)));
+                new ClientScreeningReservationResponse(Client2, Screening1, Seats("B", "C").Reserved(_tenMinutesAgo)));
         }
 
         [Fact]

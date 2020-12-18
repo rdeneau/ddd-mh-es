@@ -22,12 +22,12 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
             _eventBus = eventBus;
         }
 
-        public void CheckSeatsReservationExpiration(IReadOnlyList<SeatNumber> seats)
+        public void CheckSeatsReservationExpiration(ClientId clientId, IReadOnlyList<SeatNumber> seats)
         {
             var seatsToFree = SeatsWithReservationExpired(seats).ToReadOnlyList();
             if (seatsToFree.Count > 0)
             {
-                _eventBus.Publish(new SeatReservationHasExpired(_state.Id, seatsToFree));
+                _eventBus.Publish(new SeatReservationHasExpired(clientId, _state.Id, seatsToFree));
             }
         }
 

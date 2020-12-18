@@ -51,6 +51,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
     ) : AuditedEvent, IScreeningReservationEvent;
 
     public sealed record SeatReservationHasExpired(
+        ClientId                  ClientId,
         ScreeningId               ScreeningId,
         IReadOnlyList<SeatNumber> Seats
     ) : AuditedEvent, IScreeningReservationEvent;
