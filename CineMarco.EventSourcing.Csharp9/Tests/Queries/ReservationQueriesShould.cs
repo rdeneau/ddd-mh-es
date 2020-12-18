@@ -84,7 +84,9 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
                 new ClientScreeningReservations(Client1, Screening1));
 
             ThenExpect(
-                new ClientScreeningReservationResponse(Client1, Screening1, Seats("B").Reserved(_tenMinutesAgo)));
+                new ClientScreeningReservationResponse(Client1, Screening1,
+                                                       Seats("A").Expired(_fifteenMinutesAgo) +
+                                                       Seats("B").Reserved(_tenMinutesAgo)));
         }
 
         [Fact]

@@ -51,5 +51,8 @@ namespace CineMarco.EventSourcing.Csharp9.Common.Collections
             _items.ForEach(changeItem);
             return this;
         }
+
+        public static ReadOnlyList<T> operator +(ReadOnlyList<T> left, ReadOnlyList<T> right) =>
+            new(left.Concat(right));
     }
 }

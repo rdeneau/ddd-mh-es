@@ -22,13 +22,13 @@ namespace CineMarco.EventSourcing.Csharp9.Application
         }
 
         public ScreeningAvailableSeatsResponse Handle(ScreeningAvailableSeats query) =>
-            _readModels.ScreeningInfos.TryGetValue(query.ScreeningId, out var reservation)
+            _readModels.Screenings.TryGetValue(query.ScreeningId, out var reservation)
                 ? new(query.ScreeningId, reservation.AvailableSeats.ToReadOnlyList())
                 : ScreeningAvailableSeatsResponse.NotFound(query.ScreeningId);
 
         public ClientScreeningReservationResponse Handle(ClientScreeningReservations query)
         {
-            if (!_readModels.ClientReservationInfos.TryGetValue(query.ClientId, out var clientReservationInfo))
+            if (!_readModels.ClientReservations.TryGetValue(query.ClientId, out var clientReservationInfo))
             {
                 return ClientScreeningReservationResponse.NotFound(query.ClientId, query.ScreeningId);
             }
@@ -36,7 +36,7 @@ namespace CineMarco.EventSourcing.Csharp9.Application
             var clientSeatReservationInfos =
                 clientReservationInfo.Reservations
                                      .Where(x => x.ScreeningId == query.ScreeningId)
-                                     .Select(x => new ClientSeatReservationInfo(x.SeatNumber, x.ReservationDate, x.ReservationStatus));
+                                     .Select(x => new ClientSeatReservationInfo(x.SeatNumber, x.ReservedAt, x.Status));
             return new(query.ClientId, query.ScreeningId, clientSeatReservationInfos.ToReadOnlyList());
         }
     }

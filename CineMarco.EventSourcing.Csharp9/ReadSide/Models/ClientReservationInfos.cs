@@ -19,15 +19,15 @@ namespace CineMarco.EventSourcing.Csharp9.ReadSide.Models
 
         public SeatNumber SeatNumber { get; }
 
-        public DateTimeOffset ReservationDate { get; }
+        public DateTimeOffset ReservedAt { get; }
 
-        public ReservationStatus ReservationStatus { get; set; } = ReservationStatus.Reserved;
+        public ReservationStatus Status { get; set; } = ReservationStatus.Reserved;
 
-        public ClientSeatReservationInfo(ScreeningId screeningId, SeatNumber seatNumber, DateTimeOffset reservationDate)
+        public ClientSeatReservationInfo(ScreeningId screeningId, SeatNumber seatNumber, DateTimeOffset reservedAt)
         {
-            ScreeningId     = screeningId;
-            SeatNumber      = seatNumber;
-            ReservationDate = reservationDate;
+            ScreeningId = screeningId;
+            SeatNumber  = seatNumber;
+            ReservedAt  = reservedAt;
         }
     }
 
@@ -70,12 +70,14 @@ namespace CineMarco.EventSourcing.Csharp9.ReadSide.Models
                     seatNumber => new ClientSeatReservationInfo(@event.ScreeningId, seatNumber, @event.At)));
         }
 
-        // TODO
-        // private void Apply(SeatReservationHasExpired @event)
-        // {
-        //     if (TryGetValue(@event.ClientId, out var screeningInfo))
-        //         screeningInfo.FreeSeats(@event.Seats);
-        // }
+        private void Apply(SeatReservationHasExpired @event)
+        {
+            var clientReservationInfo = this[@event.ClientId];
+            foreach (var seatReservationInfo in clientReservationInfo.Reservations.Where(x => @event.Seats.Contains(x.SeatNumber)))
+            {
+                seatReservationInfo.Status = ReservationStatus.Expired;
+            }
+        }
     }
 
 }

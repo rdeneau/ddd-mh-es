@@ -13,6 +13,9 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils.DataHelpers
         public static ReadOnlyList<SeatNumber> Seats(params string[] seatNumbers) =>
             seatNumbers.Select(i => new SeatNumber(i)).ToReadOnlyList();
 
+        public static ReadOnlyList<ClientSeatReservationInfo> Expired(this IEnumerable<SeatNumber> seats, DateTimeOffset at) =>
+            seats.Select(seat => new ClientSeatReservationInfo(seat, at, ReservationStatus.Expired)).ToReadOnlyList();
+
         public static ReadOnlyList<ClientSeatReservationInfo> Reserved(this IEnumerable<SeatNumber> seats, DateTimeOffset at) =>
             seats.Select(seat => new ClientSeatReservationInfo(seat, at, ReservationStatus.Reserved)).ToReadOnlyList();
     }
