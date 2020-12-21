@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using CineMarco.EventSourcing.Csharp9.Common;
 using CineMarco.EventSourcing.Csharp9.Common.Collections;
-using CineMarco.EventSourcing.Csharp9.Domain.Contracts;
 
 namespace CineMarco.EventSourcing.Csharp9.Domain
 {
@@ -14,20 +13,17 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
         private readonly ScreeningReservationState _state;
 
-        private readonly IEventBus _eventBus;
-
-        public ScreeningReservation(ScreeningReservationState state, IEventBus eventBus)
+        public ScreeningReservation(ScreeningReservationState state)
         {
-            _state    = state;
-            _eventBus = eventBus;
+            _state = state;
         }
 
-        public void CheckSeatsReservationExpiration(ClientId clientId, IReadOnlyList<SeatNumber> seats)
+        public IEnumerable<IScreeningReservationEvent> CheckSeatsReservationExpiration(ClientId clientId, IReadOnlyList<SeatNumber> seats)
         {
             var seatsToFree = SeatsWithReservationExpired(seats).ToReadOnlyList();
             if (seatsToFree.Count > 0)
             {
-                _eventBus.Publish(new SeatReservationHasExpired(clientId, _state.Id, seatsToFree));
+                yield return new SeatReservationHasExpired(clientId, _state.Id, seatsToFree);
             }
         }
 
@@ -37,48 +33,36 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
             where  seat?.HasReservationExpired(ExpirationDelay) == true
             select seatNumber;
 
-        public IScreeningReservationEvent Book(IReadOnlyList<SeatNumber> seats, ClientId @for, DateTimeOffset? at) =>
-            BookEvent(seats, @for, at)
-                .PublishedTo(_eventBus);
-
-        private IScreeningReservationEvent BookEvent(IReadOnlyList<SeatNumber> seats, ClientId clientId, DateTimeOffset? date)
+        public IEnumerable<IScreeningReservationEvent> Book(IReadOnlyList<SeatNumber> seats, ClientId clientId, DateTimeOffset? date)
         {
             var seatsToBooked = ReservedSeats().Intersect(seats).ToReadOnlyList();
             if (seatsToBooked.Count == seats.Count)
-                return new SeatsAreBooked(clientId, _state.Id, seats).At(date);
-
+                yield return new SeatsAreBooked(clientId, _state.Id, seats).At(date);
             else
-                return new SeatsBookingFailed(clientId, _state.Id, seats);
+                yield return new SeatsBookingFailed(clientId, _state.Id, seats);
         }
 
-        public IScreeningReservationEvent Reserve(IReadOnlyList<SeatNumber> seats, ClientId @for, DateTimeOffset? at) =>
-            ReserveEvent(seats, @for, at)
-                .PublishedTo(_eventBus);
-
-        private IScreeningReservationEvent ReserveEvent(IReadOnlyList<SeatNumber> seats, ClientId clientId, DateTimeOffset? date)
+        public IEnumerable<IScreeningReservationEvent> Reserve(IReadOnlyList<SeatNumber> seats, ClientId clientId, DateTimeOffset? date)
         {
             if (IsTooClosedToScreeningTime())
-                return new SeatsReservationFailed(clientId, _state.Id, seats, ReservationFailure.TooClosedToScreeningTime);
+            {
+                yield return new SeatsReservationFailed(clientId, _state.Id, seats, ReservationFailure.TooClosedToScreeningTime);
+                yield break;
+            }
 
             var seatsToReserved = AvailableSeats().Intersect(seats).ToReadOnlyList();
             if (seatsToReserved.Count == seats.Count)
-                return new SeatsAreReserved(clientId, _state.Id, seatsToReserved).At(date);
-
-            if (seats.Except(AllSeats()).Any())
-                return new SeatsReservationFailed(clientId, _state.Id, seats, ReservationFailure.SomeSeatsAreUnknown);
-
+                yield return new SeatsAreReserved(clientId, _state.Id, seatsToReserved).At(date);
+            else if (seats.Except(AllSeats()).Any())
+                yield return new SeatsReservationFailed(clientId, _state.Id, seats, ReservationFailure.SomeSeatsAreUnknown);
             else
-                return new SeatsReservationFailed(clientId, _state.Id, seats);
+                yield return new SeatsReservationFailed(clientId, _state.Id, seats);
         }
 
         private bool IsTooClosedToScreeningTime() =>
             ClockUtc.Now > _state.Date.Add(-ClosingDelay);
 
-        public IScreeningReservationEvent ReserveSeatsInBulk(NumberOfSeats count, ClientId clientId) =>
-            ReserveSeatsInBulkEvent(count, clientId)
-                .PublishedTo(_eventBus);
-
-        private IScreeningReservationEvent ReserveSeatsInBulkEvent(NumberOfSeats count, ClientId clientId)
+        public IEnumerable<IScreeningReservationEvent> ReserveSeatsInBulkEvent(NumberOfSeats count, ClientId clientId)
         {
             var numberOfSeats = count.Value;
             var seatsToReserved = AvailableSeats()
@@ -86,9 +70,9 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
                                   .ToReadOnlyList();
 
             if (seatsToReserved.Count < numberOfSeats)
-                return new SeatsBulkReservationFailed(clientId, _state.Id, numberOfSeats);
+                yield return new SeatsBulkReservationFailed(clientId, _state.Id, numberOfSeats);
             else
-                return new SeatsAreReserved(clientId, _state.Id, seatsToReserved);
+                yield return new SeatsAreReserved(clientId, _state.Id, seatsToReserved);
         }
 
         private IEnumerable<SeatNumber> AllSeats()       => SeatsBeing<ISeat>();
