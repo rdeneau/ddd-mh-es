@@ -37,26 +37,26 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
         {
             var seatsToBooked = ReservedSeats().Intersect(seats).ToReadOnlyList();
             if (seatsToBooked.Count == seats.Count)
-                yield return new SeatsAreBooked(clientId, _state.Id, seats).At(date);
+                yield return new SeatsHaveBeenBooked(clientId, _state.Id, seats).At(date);
             else
-                yield return new SeatsBookingFailed(clientId, _state.Id, seats);
+                yield return new SeatsBookingHasFailed(clientId, _state.Id, seats);
         }
 
         public IEnumerable<IScreeningReservationEvent> Reserve(IReadOnlyList<SeatNumber> seats, ClientId clientId, DateTimeOffset? date)
         {
             if (IsTooClosedToScreeningTime())
             {
-                yield return new SeatsReservationFailed(clientId, _state.Id, seats, ReservationFailure.TooClosedToScreeningTime);
+                yield return new SeatsReservationHasFailed(clientId, _state.Id, seats, ReservationFailure.TooClosedToScreeningTime);
                 yield break;
             }
 
             var seatsToReserved = AvailableSeats().Intersect(seats).ToReadOnlyList();
             if (seatsToReserved.Count == seats.Count)
-                yield return new SeatsAreReserved(clientId, _state.Id, seatsToReserved).At(date);
+                yield return new SeatsHaveBeenReserved(clientId, _state.Id, seatsToReserved).At(date);
             else if (seats.Except(AllSeats()).Any())
-                yield return new SeatsReservationFailed(clientId, _state.Id, seats, ReservationFailure.SomeSeatsAreUnknown);
+                yield return new SeatsReservationHasFailed(clientId, _state.Id, seats, ReservationFailure.SomeSeatsAreUnknown);
             else
-                yield return new SeatsReservationFailed(clientId, _state.Id, seats);
+                yield return new SeatsReservationHasFailed(clientId, _state.Id, seats);
         }
 
         private bool IsTooClosedToScreeningTime() =>
@@ -70,9 +70,9 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
                                   .ToReadOnlyList();
 
             if (seatsToReserved.Count < numberOfSeats)
-                yield return new SeatsBulkReservationFailed(clientId, _state.Id, numberOfSeats);
+                yield return new SeatsBulkReservationHasFailed(clientId, _state.Id, numberOfSeats);
             else
-                yield return new SeatsAreReserved(clientId, _state.Id, seatsToReserved);
+                yield return new SeatsHaveBeenReserved(clientId, _state.Id, seatsToReserved);
         }
 
         private IEnumerable<SeatNumber> AllSeats()       => SeatsBeing<ISeat>();

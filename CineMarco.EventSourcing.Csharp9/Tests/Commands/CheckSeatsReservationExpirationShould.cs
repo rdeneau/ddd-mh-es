@@ -17,8 +17,8 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
         public void Remove_reservation_expired_after(int minutesAgo)
         {
             Given(
-                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B")),
-                new SeatsAreReserved(Client1, Screening1, Seats("A")) { At = Occurring.Sooner(minutesAgo) });
+                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B")),
+                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A")) { At = Occurring.Sooner(minutesAgo) });
 
             When(
                 new CheckSeatsReservationExpiration(Client1, Screening1, Seats("A")));
@@ -31,9 +31,9 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
         public void Remove_reservation_expired_only_for_given_seats()
         {
             Given(
-                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B")),
-                new SeatsAreReserved(Client1, Screening1, Seats("A")) { At = Occurring.Sooner(minutesAgo: 15) },
-                new SeatsAreReserved(Client1, Screening1, Seats("B")) { At = Occurring.Sooner(minutesAgo: 10) });
+                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B")),
+                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A")) { At = Occurring.Sooner(minutesAgo: 15) },
+                new SeatsHaveBeenReserved(Client1, Screening1, Seats("B")) { At = Occurring.Sooner(minutesAgo: 10) });
 
             When(
                 new CheckSeatsReservationExpiration(Client1, Screening1, Seats("A", "B")));

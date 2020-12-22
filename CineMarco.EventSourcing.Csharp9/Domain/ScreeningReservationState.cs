@@ -6,9 +6,9 @@ using CineMarco.EventSourcing.Csharp9.Common.Collections;
 namespace CineMarco.EventSourcing.Csharp9.Domain
 {
     public class ScreeningReservationState : AggregateState,
-                                             IStateFrom<ScreeningIsInitialized>,
-                                             IStateFrom<SeatsAreBooked>,
-                                             IStateFrom<SeatsAreReserved>,
+                                             IStateFrom<ScreeningHasBeenInitialized>,
+                                             IStateFrom<SeatsHaveBeenBooked>,
+                                             IStateFrom<SeatsHaveBeenReserved>,
                                              IStateFrom<SeatReservationHasExpired>
     {
         public ScreeningId Id { get; private set; } = new();
@@ -22,7 +22,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
         public ScreeningReservationState(IEnumerable<IDomainEvent> history) :
             base(history) { }
 
-        public void Apply(ScreeningIsInitialized @event)
+        public void Apply(ScreeningHasBeenInitialized @event)
         {
             (Id, Date, _) = @event;
             @event.Seats.ForEach(seatNumber =>
@@ -31,14 +31,14 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
             });
         }
 
-        public void Apply(SeatsAreBooked @event) =>
+        public void Apply(SeatsHaveBeenBooked @event) =>
             @event.Seats.ForEach(seatNumber =>
             {
                 var seat = (ReservedSeat) SeatMap[seatNumber];
                 SeatMap[seatNumber] = seat.Book(@event.At, @event.ClientId);
             });
 
-        public void Apply(SeatsAreReserved @event) =>
+        public void Apply(SeatsHaveBeenReserved @event) =>
             @event.Seats.ForEach(seatNumber =>
             {
                 var seat = (AvailableSeat) SeatMap[seatNumber];

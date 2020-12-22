@@ -6,7 +6,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 {
     /// <summary>
     /// Naming convention: start with verb in the past tense
-    /// E.g. "SeatsAreReserved"
+    /// E.g. "SeatsHaveBeenReserved"
     /// </summary>
     public interface IDomainEvent { }
 
@@ -21,7 +21,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
             at.HasValue ? @this with { At = at.Value } : @this;
     }
 
-    public sealed record ScreeningIsInitialized(
+    public sealed record ScreeningHasBeenInitialized(
         ScreeningId               ScreeningId,
         DateTimeOffset            ScreeningDate,
         IReadOnlyList<SeatNumber> Seats
@@ -29,7 +29,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
     public interface IScreeningReservationEvent : IDomainEvent { }
 
-    public sealed record SeatsAreReserved(
+    public sealed record SeatsHaveBeenReserved(
         ClientId                  ClientId,
         ScreeningId               ScreeningId,
         IReadOnlyList<SeatNumber> Seats
@@ -42,14 +42,14 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
         TooClosedToScreeningTime = 3,
     }
 
-    public sealed record SeatsReservationFailed(
+    public sealed record SeatsReservationHasFailed(
         ClientId                  ClientId,
         ScreeningId               ScreeningId,
         IReadOnlyList<SeatNumber> Seats,
         ReservationFailure        Reason = ReservationFailure.NotEnoughSeatsAvailable
     ) : AuditedEvent, IScreeningReservationEvent;
 
-    public sealed record SeatsBulkReservationFailed(
+    public sealed record SeatsBulkReservationHasFailed(
         ClientId           ClientId,
         ScreeningId        ScreeningId,
         int                NumberOfSeats,
@@ -62,13 +62,13 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
         IReadOnlyList<SeatNumber> Seats
     ) : AuditedEvent, IScreeningReservationEvent;
 
-    public sealed record SeatsAreBooked(
+    public sealed record SeatsHaveBeenBooked(
         ClientId                  ClientId,
         ScreeningId               ScreeningId,
         IReadOnlyList<SeatNumber> Seats
     ) : AuditedEvent, IScreeningReservationEvent;
 
-    public sealed record SeatsBookingFailed(
+    public sealed record SeatsBookingHasFailed(
         ClientId                  ClientId,
         ScreeningId               ScreeningId,
         IReadOnlyList<SeatNumber> Seats

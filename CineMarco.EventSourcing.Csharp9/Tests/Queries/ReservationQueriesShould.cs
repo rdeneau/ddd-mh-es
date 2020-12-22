@@ -19,7 +19,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
         public void Indicate_available_seats_after_initialisation()
         {
             Given(
-                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")));
+                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")));
 
             WhenQuery(
                 new ScreeningAvailableSeats(Screening1));
@@ -32,7 +32,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
         public void Indicate_screening_not_found()
         {
             Given(
-                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")));
+                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")));
 
             WhenQuery(
                 new ScreeningAvailableSeats(Screening2));
@@ -45,8 +45,8 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
         public void Indicate_available_seats_after_reservation()
         {
             Given(
-                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
-                new SeatsAreReserved(Client1, Screening1, Seats("A", "B")));
+                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
+                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A", "B")));
 
             WhenQuery(
                 new ScreeningAvailableSeats(Screening1));
@@ -59,9 +59,9 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
         public void Indicate_available_seats_after_reservation_expired()
         {
             Given(
-                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
-                new SeatsAreReserved(Client1, Screening1, Seats("A")),
-                new SeatsAreReserved(Client2, Screening1, Seats("B")),
+                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
+                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A")),
+                new SeatsHaveBeenReserved(Client2, Screening1, Seats("B")),
                 new SeatReservationHasExpired(Client1, Screening1, Seats("A")));
 
             WhenQuery(
@@ -75,9 +75,9 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
         public void Indicate_client_seats_reservation_expired()
         {
             Given(
-                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
-                new SeatsAreReserved(Client1, Screening1, Seats("A")) { At = _fifteenMinutesAgo },
-                new SeatsAreReserved(Client1, Screening1, Seats("B")) { At = _tenMinutesAgo },
+                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
+                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A")) { At = _fifteenMinutesAgo },
+                new SeatsHaveBeenReserved(Client1, Screening1, Seats("B")) { At = _tenMinutesAgo },
                 new SeatReservationHasExpired(Client1, Screening1, Seats("A")));
 
             WhenQuery(
@@ -93,10 +93,10 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
         public void Indicate_client_seats_reserved()
         {
             Given(
-                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
-                new SeatsAreReserved(Client1, Screening1, Seats("A")),
-                new SeatsAreReserved(Client2, Screening1, Seats("B", "C")) { At = _tenMinutesAgo },
-                new SeatsAreReserved(Client3, Screening1, Seats("D")));
+                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
+                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A")),
+                new SeatsHaveBeenReserved(Client2, Screening1, Seats("B", "C")) { At = _tenMinutesAgo },
+                new SeatsHaveBeenReserved(Client3, Screening1, Seats("D")));
 
             WhenQuery(
                 new ClientScreeningReservations(Client2, Screening1));
@@ -109,9 +109,9 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
         public void Indicate_client_no_reservation_for_other_screening()
         {
             Given(
-                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
-                new ScreeningIsInitialized(Screening2, Occurring.Tomorrow, Seats("X", "Y", "Z")),
-                new SeatsAreReserved(Client1, Screening1, Seats("A")));
+                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
+                new ScreeningHasBeenInitialized(Screening2, Occurring.Tomorrow, Seats("X", "Y", "Z")),
+                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A")));
 
             WhenQuery(
                 new ClientScreeningReservations(Client1, Screening2));
@@ -124,7 +124,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Queries
         public void Indicate_client_no_reservation_at_all()
         {
             Given(
-                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")));
+                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")));
 
             WhenQuery(
                 new ClientScreeningReservations(Client1, Screening1));

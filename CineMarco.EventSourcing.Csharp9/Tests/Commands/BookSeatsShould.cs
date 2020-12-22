@@ -15,42 +15,42 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
         public void Book_reserved_seats()
         {
             Given(
-                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C")),
-                new SeatsAreReserved(Client1, Screening1, Seats("A", "B")));
+                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C")),
+                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A", "B")));
 
             When(
                 new BookSeats(Client1, Screening1, Seats("A", "B")));
 
             ThenExpect(
-                new SeatsAreBooked(Client1, Screening1, Seats("A", "B")));
+                new SeatsHaveBeenBooked(Client1, Screening1, Seats("A", "B")));
         }
 
         [Fact]
         public void Fail_to_book_seats_not_reserved()
         {
             Given(
-                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C")));
+                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C")));
 
             When(
                 new BookSeats(Client1, Screening1, Seats("A", "B")));
 
             ThenExpect(
-                new SeatsBookingFailed(Client1, Screening1, Seats("A", "B")));
+                new SeatsBookingHasFailed(Client1, Screening1, Seats("A", "B")));
         }
 
         [Fact]
         public void Fail_to_book_seats_already_booked()
         {
             Given(
-                new ScreeningIsInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C")),
-                new SeatsAreReserved(Client1, Screening1, Seats("A", "B")),
-                new SeatsAreBooked(Client1, Screening1, Seats("A", "B")));
+                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C")),
+                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A", "B")),
+                new SeatsHaveBeenBooked(Client1, Screening1, Seats("A", "B")));
 
             When(
                 new BookSeats(Client1, Screening1, Seats("A", "B")));
 
             ThenExpect(
-                new SeatsBookingFailed(Client1, Screening1, Seats("A", "B")));
+                new SeatsBookingHasFailed(Client1, Screening1, Seats("A", "B")));
         }
     }
 }

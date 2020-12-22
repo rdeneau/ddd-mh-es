@@ -60,7 +60,7 @@ namespace CineMarco.EventSourcing.Csharp9.Application
         {
             foreach (var reservationEvent in reservationEvents)
             {
-                if (reservationEvent is SeatsAreReserved seatsAreReserved)
+                if (reservationEvent is SeatsHaveBeenReserved seatsAreReserved)
                 {
                     var command = new CheckSeatsReservationExpiration(
                                       seatsAreReserved.ClientId,
@@ -71,6 +71,15 @@ namespace CineMarco.EventSourcing.Csharp9.Application
             }
         }
 
+        /// <remarks>
+        /// Cette méthode pourrait être déportée dans un `ScreeningReservationRepository`, lui-même
+        /// pouvant se baser sur un Repo générique encapsulant un EventStore.
+        ///
+        /// Exemples :
+        /// * https://github.com/baruica/gym-kotlin-es/blob/main/src/main/kotlin/common/EventStore.kt
+        /// * https://github.com/baruica/gym-kotlin-es/blob/main/src/main/kotlin/gym/membership/domain/MemberEventStore.kt
+        /// * https://github.com/baruica/gym-kotlin-es/blob/main/src/main/kotlin/gym/membership/infrastructure/MemberInMemoryEventStore.kt
+        /// </remarks>
         private ScreeningReservation ScreeningReservationById(ScreeningId screeningId)
         {
             var history = _eventStore.Search(@by: $"ScreeningId = {screeningId}");
