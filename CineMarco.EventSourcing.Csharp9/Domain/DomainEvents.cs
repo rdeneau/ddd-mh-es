@@ -21,7 +21,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
             at.HasValue ? @this with { At = at.Value } : @this;
     }
 
-    public sealed record ScreeningHasBeenInitialized(
+    public sealed record ScreeningWasInitialized(
         ScreeningId               ScreeningId,
         DateTimeOffset            ScreeningDate,
         IReadOnlyList<SeatNumber> Seats
@@ -29,7 +29,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
     public interface IScreeningReservationEvent : IDomainEvent { }
 
-    public sealed record SeatsHaveBeenReserved(
+    public sealed record SeatsWereReserved(
         ClientId                  ClientId,
         ScreeningId               ScreeningId,
         IReadOnlyList<SeatNumber> Seats
@@ -56,13 +56,13 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
         ReservationFailure Reason = ReservationFailure.NotEnoughSeatsAvailable
     ) : AuditedEvent, IScreeningReservationEvent;
 
-    public sealed record SeatReservationHasExpired(
+    public sealed record SeatsReservationHasExpired(
         ClientId                  ClientId,
         ScreeningId               ScreeningId,
         IReadOnlyList<SeatNumber> Seats
     ) : AuditedEvent, IScreeningReservationEvent;
 
-    public sealed record SeatsHaveBeenBooked(
+    public sealed record SeatsWereBooked(
         ClientId                  ClientId,
         ScreeningId               ScreeningId,
         IReadOnlyList<SeatNumber> Seats

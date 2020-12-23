@@ -15,7 +15,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Scenarios
         public void Indicate_client_seats_reserved()
         {
             Given(
-                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")));
+                new ScreeningWasInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")));
 
             When(
                 new ReserveSeats(Client1, Screening1, Seats("B", "C")) { At = FixedTimeStamp });

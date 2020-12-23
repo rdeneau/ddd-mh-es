@@ -23,7 +23,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
             var seatsToFree = SeatsWithReservationExpired(seats).ToReadOnlyList();
             if (seatsToFree.Count > 0)
             {
-                yield return new SeatReservationHasExpired(clientId, _state.Id, seatsToFree);
+                yield return new SeatsReservationHasExpired(clientId, _state.Id, seatsToFree);
             }
         }
 
@@ -37,7 +37,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
         {
             var seatsToBooked = ReservedSeats().Intersect(seats).ToReadOnlyList();
             if (seatsToBooked.Count == seats.Count)
-                yield return new SeatsHaveBeenBooked(clientId, _state.Id, seats).At(date);
+                yield return new SeatsWereBooked(clientId, _state.Id, seats).At(date);
             else
                 yield return new SeatsBookingHasFailed(clientId, _state.Id, seats);
         }
@@ -52,7 +52,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
             var seatsToReserved = AvailableSeats().Intersect(seats).ToReadOnlyList();
             if (seatsToReserved.Count == seats.Count)
-                yield return new SeatsHaveBeenReserved(clientId, _state.Id, seatsToReserved).At(date);
+                yield return new SeatsWereReserved(clientId, _state.Id, seatsToReserved).At(date);
             else if (seats.Except(AllSeats()).Any())
                 yield return new SeatsReservationHasFailed(clientId, _state.Id, seats, ReservationFailure.SomeSeatsAreUnknown);
             else
@@ -72,7 +72,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
             if (seatsToReserved.Count < numberOfSeats)
                 yield return new SeatsBulkReservationHasFailed(clientId, _state.Id, numberOfSeats);
             else
-                yield return new SeatsHaveBeenReserved(clientId, _state.Id, seatsToReserved);
+                yield return new SeatsWereReserved(clientId, _state.Id, seatsToReserved);
         }
 
         private IEnumerable<SeatNumber> AllSeats()       => SeatsBeing<ISeat>();

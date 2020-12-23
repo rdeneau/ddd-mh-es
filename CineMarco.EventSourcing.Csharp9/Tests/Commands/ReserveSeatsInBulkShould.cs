@@ -15,49 +15,49 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
         public void Reserve_first_seat()
         {
             Given(
-                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B")));
+                new ScreeningWasInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B")));
 
             When(
                 new ReserveSeatsInBulk(Client1, Screening1, new NumberOfSeats(1)));
 
             ThenExpect(
-                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A")));
+                new SeatsWereReserved(Client1, Screening1, Seats("A")));
         }
 
         [Fact]
         public void Reserve_second_seat()
         {
             Given(
-                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B")),
-                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A")));
+                new ScreeningWasInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B")),
+                new SeatsWereReserved(Client1, Screening1, Seats("A")));
 
             When(
                 new ReserveSeatsInBulk(Client1, Screening1, new NumberOfSeats(1)));
 
             ThenExpect(
-                new SeatsHaveBeenReserved(Client1, Screening1, Seats("B")));
+                new SeatsWereReserved(Client1, Screening1, Seats("B")));
         }
 
         [Fact]
         public void Reserve_two_seats_given_two_seats_are_already_reserved()
         {
             Given(
-                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
-                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A", "C")));
+                new ScreeningWasInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
+                new SeatsWereReserved(Client1, Screening1, Seats("A", "C")));
 
             When(
                 new ReserveSeatsInBulk(Client1, Screening1, new NumberOfSeats(2)));
 
             ThenExpect(
-                new SeatsHaveBeenReserved(Client1, Screening1, Seats("B", "D")));
+                new SeatsWereReserved(Client1, Screening1, Seats("B", "D")));
         }
 
         [Fact]
         public void Fail_to_reserve_a_seat_not_available()
         {
             Given(
-                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A")),
-                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A")));
+                new ScreeningWasInitialized(Screening1, Occurring.Tomorrow, Seats("A")),
+                new SeatsWereReserved(Client1, Screening1, Seats("A")));
 
             When(
                 new ReserveSeatsInBulk(Client1, Screening1, new NumberOfSeats(1)));
@@ -70,7 +70,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
         public void Fail_to_reserve_too_much_seat_for_the_screening()
         {
             Given(
-                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A")));
+                new ScreeningWasInitialized(Screening1, Occurring.Tomorrow, Seats("A")));
 
             When(
                 new ReserveSeatsInBulk(Client1, Screening1, new NumberOfSeats(2)));

@@ -16,49 +16,49 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
         public void Reserve_first_seat()
         {
             Given(
-                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B")));
+                new ScreeningWasInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B")));
 
             When(
                 new ReserveSeats(Client1, Screening1, Seats("A")));
 
             ThenExpect(
-                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A")));
+                new SeatsWereReserved(Client1, Screening1, Seats("A")));
         }
 
         [Fact]
         public void Reserve_second_seat()
         {
             Given(
-                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B")),
-                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A")));
+                new ScreeningWasInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B")),
+                new SeatsWereReserved(Client1, Screening1, Seats("A")));
 
             When(
                 new ReserveSeats(Client1, Screening1, Seats("B")));
 
             ThenExpect(
-                new SeatsHaveBeenReserved(Client1, Screening1, Seats("B")));
+                new SeatsWereReserved(Client1, Screening1, Seats("B")));
         }
 
         [Fact]
         public void Reserve_two_seats_given_two_seats_are_already_reserved()
         {
             Given(
-                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
-                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A", "C")));
+                new ScreeningWasInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C", "D")),
+                new SeatsWereReserved(Client1, Screening1, Seats("A", "C")));
 
             When(
                 new ReserveSeats(Client1, Screening1, Seats("B", "D")));
 
             ThenExpect(
-                new SeatsHaveBeenReserved(Client1, Screening1, Seats("B", "D")));
+                new SeatsWereReserved(Client1, Screening1, Seats("B", "D")));
         }
 
         [Fact]
         public void Fail_to_reserve_a_seat_not_available()
         {
             Given(
-                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A")),
-                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A")));
+                new ScreeningWasInitialized(Screening1, Occurring.Tomorrow, Seats("A")),
+                new SeatsWereReserved(Client1, Screening1, Seats("A")));
 
             When(
                 new ReserveSeats(Client1, Screening1, Seats("A")));
@@ -71,8 +71,8 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
         public void Fail_to_reserve_a_seat_not_known()
         {
             Given(
-                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A")),
-                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A")));
+                new ScreeningWasInitialized(Screening1, Occurring.Tomorrow, Seats("A")),
+                new SeatsWereReserved(Client1, Screening1, Seats("A")));
 
             When(
                 new ReserveSeats(Client1, Screening1, Seats("X")));
@@ -87,13 +87,13 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
         public void Reserve_a_seat_enough_minutes_before_the_screening(int minutesBeforeScreening)
         {
             Given(
-                new ScreeningHasBeenInitialized(Screening1, Occurring.Later(minutesBeforeScreening), Seats("A", "B")));
+                new ScreeningWasInitialized(Screening1, Occurring.Later(minutesBeforeScreening), Seats("A", "B")));
 
             When(
                 new ReserveSeats(Client1, Screening1, Seats("A")));
 
             ThenExpect(
-                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A")));
+                new SeatsWereReserved(Client1, Screening1, Seats("A")));
         }
 
         [Theory]
@@ -104,7 +104,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
         public void Fail_to_reserve_a_seat_less_than_15_minutes_before_the_screening(int minutesBeforeScreening)
         {
             Given(
-                new ScreeningHasBeenInitialized(Screening1, Occurring.Later(minutesBeforeScreening), Seats("A", "B")));
+                new ScreeningWasInitialized(Screening1, Occurring.Later(minutesBeforeScreening), Seats("A", "B")));
 
             When(
                 new ReserveSeats(Client1, Screening1, Seats("A")));
@@ -117,22 +117,22 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Commands
         public void Reserve_a_seat_given_previous_reservation_expired()
         {
             Given(
-                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B")),
-                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A")) { At = Occurring.Sooner(minutesAgo: 12) },
-                new SeatReservationHasExpired(Client1, Screening1, Seats("A")));
+                new ScreeningWasInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B")),
+                new SeatsWereReserved(Client1, Screening1, Seats("A")) { At = Occurring.Sooner(minutesAgo: 12) },
+                new SeatsReservationHasExpired(Client1, Screening1, Seats("A")));
 
             When(
                 new ReserveSeats(Client1, Screening1, Seats("A")));
 
             ThenExpect(
-                new SeatsHaveBeenReserved(Client1, Screening1, Seats("A")));
+                new SeatsWereReserved(Client1, Screening1, Seats("A")));
         }
 
         [Fact]
         public void Schedule_reservation_expiration_check_after_12_minutes()
         {
             Given(
-                new ScreeningHasBeenInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C")));
+                new ScreeningWasInitialized(Screening1, Occurring.Tomorrow, Seats("A", "B", "C")));
 
             When(
                 new ReserveSeats(Client1, Screening1, Seats("A", "B")) { At = FixedTimeStamp });

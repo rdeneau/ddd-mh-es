@@ -60,7 +60,7 @@ namespace CineMarco.EventSourcing.Csharp9.Application
         {
             foreach (var reservationEvent in reservationEvents)
             {
-                if (reservationEvent is SeatsHaveBeenReserved seatsAreReserved)
+                if (reservationEvent is SeatsWereReserved seatsAreReserved)
                 {
                     var command = new CheckSeatsReservationExpiration(
                                       seatsAreReserved.ClientId,

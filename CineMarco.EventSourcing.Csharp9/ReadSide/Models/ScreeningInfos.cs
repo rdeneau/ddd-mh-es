@@ -14,18 +14,18 @@ namespace CineMarco.EventSourcing.Csharp9.ReadSide.Models
         // ReSharper disable once UnusedParameter.Local // `_` argument
         private void Apply(IDomainEvent _) { }
 
-        private void Apply(ScreeningHasBeenInitialized @event)
+        private void Apply(ScreeningWasInitialized @event)
         {
             Add(new ScreeningInfo(@event.ScreeningId, @event.Seats));
         }
 
-        private void Apply(SeatsHaveBeenReserved @event)
+        private void Apply(SeatsWereReserved @event)
         {
             if (TryGetValue(@event.ScreeningId, out var screeningInfo))
                 screeningInfo.ReserveSeats(@event.Seats);
         }
 
-        private void Apply(SeatReservationHasExpired @event)
+        private void Apply(SeatsReservationHasExpired @event)
         {
             if (TryGetValue(@event.ScreeningId, out var screeningInfo))
                 screeningInfo.FreeSeats(@event.Seats);

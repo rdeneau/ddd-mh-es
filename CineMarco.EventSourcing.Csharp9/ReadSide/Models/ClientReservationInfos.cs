@@ -57,7 +57,7 @@ namespace CineMarco.EventSourcing.Csharp9.ReadSide.Models
         // ReSharper disable once UnusedParameter.Local // `_` argument
         private void Apply(IDomainEvent _) { }
 
-        private void Apply(SeatsHaveBeenReserved @event)
+        private void Apply(SeatsWereReserved @event)
         {
             if (!TryGetValue(@event.ClientId, out var clientReservationInfo))
             {
@@ -70,7 +70,7 @@ namespace CineMarco.EventSourcing.Csharp9.ReadSide.Models
                     seatNumber => new ClientSeatReservationInfo(@event.ScreeningId, seatNumber, @event.At)));
         }
 
-        private void Apply(SeatReservationHasExpired @event)
+        private void Apply(SeatsReservationHasExpired @event)
         {
             var clientReservationInfo = this[@event.ClientId];
             foreach (var seatReservationInfo in clientReservationInfo.Reservations.Where(x => @event.Seats.Contains(x.SeatNumber)))
