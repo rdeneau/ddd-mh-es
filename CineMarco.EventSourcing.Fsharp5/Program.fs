@@ -3,9 +3,30 @@
 open Domain
 open Infrastructure
 
+module PrintHelpers =
+  open Projections
+
+  let printEvents events =
+    events
+    |> List.length
+    |> printfn "History (%i events)"
+
+    events
+    |> List.iteri (fun i item -> printfn $" {i}: {item}")
+
+  let printAvailableSeatsOf screeningId events =
+    printfn $"Available seats for {screeningId}: "
+
+    events
+    |> project availableSeatsByScreening
+    |> Map.find screeningId
+    |> printfn " %A"
+
+open PrintHelpers
+
 [<EntryPoint>]
 let main _ =
-  let eventStore = eventStoreOf<DomainEvent> ()
+  let eventStore = eventStoreOf<DomainEvent>()
 
   let seats numbers =
     numbers
@@ -21,16 +42,13 @@ let main _ =
       SeatsWereReserved (clientId, screeningId, seats ["A"])
     ]
 
-  let printEvents events =
-    events
-    |> List.length
-    |> printfn "History (%i)"
+  let events = eventStore.Get()
 
-    events
-    |> List.iteri (fun i item -> printfn $" %i{i}: {item}")
-
-  eventStore.Get()
+  events
   |> printEvents
 
-  let exitCode = 0
-  exitCode
+  events
+  |> printAvailableSeatsOf screeningId
+
+  //Exit
+  0
