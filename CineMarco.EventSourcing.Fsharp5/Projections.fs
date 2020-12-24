@@ -12,33 +12,50 @@ module Projections
     events
     |> List.fold projection.Update projection.Initial
 
-  let availableSeatsByScreening: Projection<Map<ScreeningId, SeatNumbers>, DomainEvent> =
+  type Repository<'k, 'v> when 'k : comparison =
+    private Repository of Map<'k, 'v>
+
+  module Repository =
+    let empty = Map.empty |> Repository
+
+    let private innerMap repository =
+      let (Repository map) = repository
+      map
+
+    let find key repository =
+      repository
+      |> innerMap
+      |> Map.find key
+
+    let add key value repository =
+      repository
+      |> innerMap
+      |> Map.add key value
+      |> Repository
+
+    let mapValue (key: 'k) (mapping: 'v -> 'v) (repository: Repository<'k, 'v>) =
+      let mappedValue =
+        repository
+        |> find key
+        |> mapping
+
+      repository
+      |> add key mappedValue
+
+  let availableSeatsProjection: Projection<Repository<ScreeningId, SeatNumbers>, DomainEvent> =
     {
-      Initial = Map.empty
-      Update  =
-        fun state event ->
-          let get screeningId =
-            state
-            |> Map.find screeningId
-
-          let set screeningId seats =
-            state
-            |> Map.add screeningId seats
-
+      Initial = Repository.empty
+      Update =
+        fun repo event ->
           match event with
           | ScreeningWasInitialized (screeningId, _, seats) ->
-            seats
-            |> set screeningId
+            repo |> Repository.add screeningId seats
 
           | SeatsWereReserved (_, screeningId, reservedSeats) ->
-            get screeningId
-            |> List.except reservedSeats
-            |> set screeningId
+            repo |> Repository.mapValue screeningId (List.except reservedSeats)
 
           | SeatReservationHasExpired (_, screeningId, releasedSeats) ->
-            get screeningId
-            |> List.append releasedSeats
-            |> set screeningId
+            repo |> Repository.mapValue screeningId (List.append releasedSeats)
 
-          | _ -> state
+          | _ -> repo
     }

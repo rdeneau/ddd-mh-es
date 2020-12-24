@@ -18,8 +18,8 @@ module PrintHelpers =
     printfn $"Available seats for {screeningId}: "
 
     events
-    |> project availableSeatsByScreening
-    |> Map.find screeningId
+    |> project availableSeatsProjection
+    |> Repository.find screeningId
     |> printfn " %A"
 
 open PrintHelpers
