@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using CineMarco.EventSourcing.Csharp9.Common;
 
 namespace CineMarco.EventSourcing.Csharp9.Domain
 {
@@ -73,10 +74,10 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
         /// Can be used to mutate the given <paramref name="state"/>,
         /// applying the given <paramref name="event"/> and then returning it.
         /// </summary>
-        public static TEvent AppliedOn<TEvent>(this TEvent @event, IAggregateState<TEvent> state) where TEvent: IDomainEvent
-        {
-            state.Apply(@event);
-            return @event;
-        }
+        public static TEvent AppliedOn<TEvent>(this TEvent @event, IAggregateState state) where TEvent: IDomainEvent =>
+            @event.AppliedOn(state as IAggregateState<TEvent>);
+
+        private static TEvent AppliedOn<TEvent>(this TEvent @event, IAggregateState<TEvent>? state) where TEvent: IDomainEvent =>
+            @event.With(_ => state?.Apply(@event));
     }
 }

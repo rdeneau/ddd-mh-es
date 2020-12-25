@@ -22,9 +22,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
         {
             var seatsToFree = SeatsWithReservationExpired(seats).ToReadOnlyList();
             if (seatsToFree.Count > 0)
-            {
                 yield return new SeatsReservationHasExpired(clientId, _state.Id, seatsToFree).AppliedOn(_state);
-            }
         }
 
         private IEnumerable<SeatNumber> SeatsWithReservationExpired(IEnumerable<SeatNumber> seats) =>
@@ -39,24 +37,32 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
             if (seatsToBooked.Count == seats.Count)
                 yield return new SeatsWereBooked(clientId, _state.Id, seats).At(date).AppliedOn(_state);
             else
-                yield return new SeatsBookingHasFailed(clientId, _state.Id, seats);
+                yield return new SeatsBookingHasFailed(clientId, _state.Id, seats).AppliedOn(_state);
         }
 
         public IEnumerable<IScreeningReservationEvent> Reserve(IReadOnlyList<SeatNumber> seats, ClientId clientId, DateTimeOffset? date)
         {
+            var reservationFailure = ComputeReservationFailure(seats);
+            if (reservationFailure == null)
+                yield return new SeatsWereReserved(clientId, _state.Id, seats).At(date).AppliedOn(_state);
+            else
+                yield return new SeatsReservationHasFailed(clientId, _state.Id, seats, reservationFailure.Value).AppliedOn(_state);
+        }
+
+        public ReservationFailure? ComputeReservationFailure(IReadOnlyList<SeatNumber> seats)
+        {
             if (IsTooClosedToScreeningTime())
-            {
-                yield return new SeatsReservationHasFailed(clientId, _state.Id, seats, ReservationFailure.TooClosedToScreeningTime);
-                yield break;
-            }
+                return ReservationFailure.TooClosedToScreeningTime;
 
             var seatsToReserved = AvailableSeats().Intersect(seats).ToReadOnlyList();
             if (seatsToReserved.Count == seats.Count)
-                yield return new SeatsWereReserved(clientId, _state.Id, seatsToReserved).At(date).AppliedOn(_state);
-            else if (seats.Except(AllSeats()).Any())
-                yield return new SeatsReservationHasFailed(clientId, _state.Id, seats, ReservationFailure.SomeSeatsAreUnknown);
+                return null;
+
+            if (seats.Except(AllSeats()).Any())
+                return ReservationFailure.SomeSeatsAreUnknown;
+
             else
-                yield return new SeatsReservationHasFailed(clientId, _state.Id, seats);
+                return ReservationFailure.NotEnoughSeatsAvailable;
         }
 
         private bool IsTooClosedToScreeningTime() =>
