@@ -5,11 +5,10 @@ using CineMarco.EventSourcing.Csharp9.Common.Collections;
 
 namespace CineMarco.EventSourcing.Csharp9.Domain
 {
-    public class ScreeningReservationState : AggregateState,
-                                             IStateFrom<ScreeningWasInitialized>,
-                                             IStateFrom<SeatsWereBooked>,
-                                             IStateFrom<SeatsWereReserved>,
-                                             IStateFrom<SeatsReservationHasExpired>
+    public class ScreeningReservationState : IAggregateState<ScreeningWasInitialized>,
+                                             IAggregateState<SeatsWereBooked>,
+                                             IAggregateState<SeatsWereReserved>,
+                                             IAggregateState<SeatsReservationHasExpired>
     {
         public ScreeningId Id { get; private set; } = new();
 
@@ -19,8 +18,8 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
 
         public IEnumerable<ISeat> Seats => SeatMap.Values;
 
-        public ScreeningReservationState(IEnumerable<IDomainEvent> history) :
-            base(history) { }
+        public ScreeningReservationState(IEnumerable<IDomainEvent> history) =>
+            this.RestoreFrom(history);
 
         public void Apply(ScreeningWasInitialized @event)
         {
