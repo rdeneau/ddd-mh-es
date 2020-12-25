@@ -30,7 +30,6 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
     /// </summary>
     public class SemanticTest
     {
-        private readonly FakeEventBus            _eventBus             = new();
         private readonly FakeEventStore          _eventStore           = new();
         private readonly Mock<ICommandScheduler> _commandSchedulerMock = new();
         private readonly ReadModels              _readModels           = new();
@@ -41,11 +40,12 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
 
         protected bool IgnoreEventTimestamp { get; set; } = true;
 
-        private IEnumerable<IDomainEvent> PublishedEvents => _eventBus.Events;
+        private IEnumerable<IDomainEvent> AppendedEvents =>
+            _eventStore.AppendedEvents;
 
         protected SemanticTest()
         {
-            _eventBus.OnEventPublished = _readModels.Project;
+            _eventStore.OnEventAppended = _readModels.Project;
         }
 
         protected void Given(params IDomainEvent[] events)
@@ -56,8 +56,8 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
 
         protected void When(ICommand command)
         {
-            var handler = new CommandHandler(_eventStore, _eventBus, _commandSchedulerMock.Object);
-            handler.Handle(command);
+            var handler = new CommandHandler(_commandSchedulerMock.Object, _eventStore);
+            handler.HandleAny(command);
         }
 
         protected void WhenQuery(IQuery query)
@@ -75,7 +75,7 @@ namespace CineMarco.EventSourcing.Csharp9.Tests.Utils
         /// the timestamp of any <see cref="AuditedEvent"/>.
         /// </remarks>
         protected void ThenExpect(params IDomainEvent[] expectedEvents) =>
-            Sanitize(PublishedEvents)
+            Sanitize(AppendedEvents)
                 .ShouldBe(Sanitize(expectedEvents));
 
         private IEnumerable<IDomainEvent> Sanitize(IEnumerable<IDomainEvent> events) =>

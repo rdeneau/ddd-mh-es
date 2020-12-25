@@ -4,6 +4,9 @@ namespace CineMarco.EventSourcing.Csharp9.Common
 {
     public static class ObjectExtensions
     {
+        public static T Then<T>(this T source, Action<T>? action) =>
+            source.With(action);
+
         public static T With<T>(this T source, Action<T>? action)
         {
             action?.Invoke(source);

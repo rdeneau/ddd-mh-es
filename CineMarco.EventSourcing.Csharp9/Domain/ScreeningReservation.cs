@@ -49,7 +49,7 @@ namespace CineMarco.EventSourcing.Csharp9.Domain
                 yield return new SeatsReservationHasFailed(clientId, _state.Id, seats, reservationFailure.Value).AppliedOn(_state);
         }
 
-        public ReservationFailure? ComputeReservationFailure(IReadOnlyList<SeatNumber> seats)
+        private ReservationFailure? ComputeReservationFailure(IReadOnlyList<SeatNumber> seats)
         {
             if (IsTooClosedToScreeningTime())
                 return ReservationFailure.TooClosedToScreeningTime;
