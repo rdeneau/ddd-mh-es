@@ -12,11 +12,15 @@ module Projections
     events
     |> List.fold projection.Update projection.Initial
 
-  type Repository<'k, 'v> when 'k : comparison =
+  type Repository<'k, 'v when 'k : comparison> =
     private Repository of Map<'k, 'v>
 
   module Repository =
-    let empty = Map.empty |> Repository
+    let empty<'k, 'v when 'k : comparison> : Repository<'k, 'v> =
+      Map.empty |> Repository
+
+    let ofList items =
+      Map.ofList items |> Repository
 
     let private innerMap repository =
       let (Repository map) = repository
@@ -33,7 +37,7 @@ module Projections
       |> Map.add key value
       |> Repository
 
-    let mapValue (key: 'k) (mapping: 'v -> 'v) (repository: Repository<'k, 'v>) =
+    let change (key: 'k) (mapping: 'v -> 'v) (repository: Repository<'k, 'v>) =
       let mappedValue =
         repository
         |> find key
@@ -52,10 +56,10 @@ module Projections
             repo |> Repository.add screeningId seats
 
           | SeatsWereReserved (_, screeningId, reservedSeats) ->
-            repo |> Repository.mapValue screeningId (List.except reservedSeats)
+            repo |> Repository.change screeningId (List.except reservedSeats)
 
           | SeatReservationHasExpired (_, screeningId, releasedSeats) ->
-            repo |> Repository.mapValue screeningId (List.append releasedSeats)
+            repo |> Repository.change screeningId (List.append releasedSeats)
 
           | _ -> repo
     }
