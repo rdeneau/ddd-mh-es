@@ -1,24 +1,7 @@
 module Business
 
-module ListHelper =
-  let intersect list1 list2 =
-    Set.intersect (Set.ofList list1) (Set.ofList list2)
-    |> Set.toList
-
-module MapHelper =
-  let changeMany keys mapper table =
-    let mapEntry key =
-      let item =
-        table
-        |> Map.find key
-        |> mapper
-      (key, item)
-
-    keys
-    |> List.map mapEntry
-    |> Map.ofList
-
 open Domain
+open Helpers
 open Projections
 
 type Seat =
@@ -59,9 +42,9 @@ let screeningProjection: Projection<Repository<ScreeningId, Map<SeatNumber, Seat
         | _ -> repo
   }
 
-let reserveSeats clientId screeningId seatNumbers events =
+let reserveSeats clientId screeningId seatNumbers history =
   let screenings =
-    events
+    history
     |> project screeningProjection
 
   let availableSeatNumbers =
