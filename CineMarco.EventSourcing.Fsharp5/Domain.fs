@@ -10,7 +10,6 @@ type ScreeningId = ScreeningId of Guid
 
 type SeatNumber = SeatNumber of string
 type SeatNumbers = SeatNumber list
-type SeatsReservation = ClientId * ScreeningId * SeatNumbers
 
 type ScreeningDate = DateTime
 
@@ -21,8 +20,8 @@ type ReservationFailure =
 
 type DomainEvent =
   | ScreeningWasInitialized of ScreeningId * ScreeningDate * SeatNumbers
-  | SeatsWereReserved of SeatsReservation
-  | SeatsReservationHasFailed of SeatsReservation * ReservationFailure
-  | SeatReservationHasExpired of SeatsReservation
-  | SeatsWereBooked of SeatsReservation
-  | SeatsBookingHasFailed of SeatsReservation
+  | SeatsWereReserved of ClientId * ScreeningId * SeatNumbers
+  | SeatsReservationHasFailed of ClientId * ScreeningId * SeatNumbers * ReservationFailure
+  | SeatReservationHasExpired of ClientId * ScreeningId * SeatNumbers
+  | SeatsWereBooked of ClientId * ScreeningId * SeatNumbers
+  | SeatsBookingHasFailed of ClientId * ScreeningId * SeatNumbers
