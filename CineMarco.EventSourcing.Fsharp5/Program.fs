@@ -1,5 +1,6 @@
 ﻿open System
 
+open Business
 open Domain
 open Infrastructure
 
@@ -39,8 +40,11 @@ let main _ =
   eventStore.Append
     [
       ScreeningWasInitialized (screeningId, tomorrowAt10, seats ["A";"B"])
-      SeatsWereReserved (clientId, screeningId, seats ["A"])
+      // SeatsWereReserved (clientId, screeningId, seats ["A"])
     ]
+
+  reserveSeats clientId screeningId (seats ["A"])
+  |> eventStore.Evolve
 
   let events = eventStore.Get()
 

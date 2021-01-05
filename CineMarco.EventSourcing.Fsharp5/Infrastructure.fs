@@ -1,17 +1,22 @@
 module Infrastructure
 
+type EventProducer<'Event> =
+  'Event list -> 'Event list
+
 type EventStore<'Event> =
   {
+    Get    :  unit -> 'Event list
     Append : 'Event list -> unit
-    Get :  unit -> 'Event list
+    Evolve : EventProducer<'Event> -> unit
   }
 
 type Msg<'Event> =
   | Get of AsyncReplyChannel<'Event list>
   | Append of 'Event list
+  | Evolve of EventProducer<'Event>
 
 let eventStoreOf<'Event> () : EventStore<'Event> =
-  let mailbox =
+  let agent =
     MailboxProcessor.Start(fun inbox ->
       let rec loop events =
           async {
@@ -24,13 +29,18 @@ let eventStoreOf<'Event> () : EventStore<'Event> =
             | Get channel ->
                 channel.Reply events
                 return! loop events
+
+            | Evolve eventProducer ->
+                let newEvents = eventProducer events
+                return! loop (List.concat [ events ; newEvents ])
           }
 
       loop []
     )
 
   {
-    Append = fun events -> mailbox.Post (Append events)
-    Get = fun () ->  mailbox.PostAndReply(Get)
+    Get    = fun () -> agent.PostAndReply(Get)
+    Append = fun events -> agent.Post (Append events)
+    Evolve = fun eventProducer -> agent.Post (Evolve eventProducer)
   }
 

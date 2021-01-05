@@ -10,6 +10,7 @@
     <Compile Include="Domain.fs" />
     <Compile Include="Infrastructure.fs" />
     <Compile Include="Projections.fs" />
+    <Compile Include="Business.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
